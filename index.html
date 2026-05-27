@@ -541,7 +541,14 @@ async function initAudio() {
   ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
 
   try {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      },
+      video: false,
+    });
   } catch (err) {
     throw new Error('Microphone access denied: ' + err.message);
   }
@@ -703,8 +710,9 @@ async function runCountIn() {
   ui.stopBtn.disabled = false;
   ui.clearBtn.disabled = false;
 
-  // Begin playback immediately at the natural loop boundary
-  startPlayback(ctx.currentTime + 0.005);
+  // Begin playback immediately at the natural loop boundary.
+  // Use baseLatency as the minimum lookahead so we stay ahead of the hardware buffer.
+  startPlayback(ctx.currentTime + Math.max(ctx.baseLatency * 2, 0.05));
   enterPlayingState();
 }
 
