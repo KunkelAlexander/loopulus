@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0a0a" />
-<title>LOOP/02 — Guitar Looper</title>
+<title>LOOP/02.1 — Guitar Looper</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Major+Mono+Display&display=swap" rel="stylesheet">
@@ -21,30 +21,22 @@
     --led-green: #20d97a;
     --led-blue: #4cc2ff;
     --rule: #1a1a1a;
-    --screw: #2a2a2a;
     --mono: 'JetBrains Mono', ui-monospace, monospace;
     --display: 'Major Mono Display', 'JetBrains Mono', monospace;
   }
-
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--mono); overscroll-behavior: none; }
   body {
-    min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 100vh; min-height: 100dvh;
     background:
       radial-gradient(ellipse at top, #1a1a1a 0%, var(--bg) 60%),
       repeating-linear-gradient(0deg, transparent 0 2px, rgba(255,255,255,0.012) 2px 3px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex; flex-direction: column; align-items: center;
     padding: 16px 14px 32px;
-    user-select: none;
-    -webkit-user-select: none;
+    user-select: none; -webkit-user-select: none;
   }
-
   .pedal {
-    width: 100%;
-    max-width: 440px;
+    width: 100%; max-width: 440px;
     background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
     border: 1px solid var(--panel-edge);
     border-radius: 14px;
@@ -56,10 +48,8 @@
     position: relative;
   }
   .pedal::before, .pedal::after {
-    content: '';
-    position: absolute;
-    width: 8px; height: 8px;
-    border-radius: 50%;
+    content: ''; position: absolute;
+    width: 8px; height: 8px; border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a 70%);
     box-shadow: inset 0 0 2px #000;
   }
@@ -71,29 +61,15 @@
     background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a 70%);
     box-shadow: inset 0 0 2px #000;
   }
-
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    display: flex; justify-content: space-between; align-items: flex-end;
     padding: 4px 6px 14px;
     border-bottom: 1px solid var(--rule);
     margin-bottom: 18px;
   }
-  .brand {
-    font-family: var(--display);
-    font-size: 22px;
-    letter-spacing: 0.08em;
-    color: var(--ink);
-  }
+  .brand { font-family: var(--display); font-size: 22px; letter-spacing: 0.08em; color: var(--ink); }
   .brand .slash { color: var(--led-red); }
-  .model {
-    font-size: 9px;
-    letter-spacing: 0.25em;
-    color: var(--ink-dim);
-    text-transform: uppercase;
-  }
-
+  .model { font-size: 9px; letter-spacing: 0.25em; color: var(--ink-dim); text-transform: uppercase; }
   .display {
     background: #050505;
     border: 1px solid #000;
@@ -101,24 +77,16 @@
     padding: 14px 16px;
     margin-bottom: 18px;
     box-shadow: inset 0 0 30px rgba(0,0,0,0.8), inset 0 0 2px rgba(76,194,255,0.05);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
   .display::before {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(76,194,255,0.02) 2px 3px);
     pointer-events: none;
   }
-  .display-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .display-row { display: flex; justify-content: space-between; align-items: center; }
   .status-text {
-    font-family: var(--display);
-    font-size: 18px;
-    letter-spacing: 0.1em;
+    font-family: var(--display); font-size: 18px; letter-spacing: 0.1em;
     color: var(--led-amber);
     text-shadow: 0 0 10px rgba(255,176,32,0.4);
     transition: color 0.15s, text-shadow 0.15s;
@@ -126,26 +94,14 @@
   .status-text.rec  { color: var(--led-red);   text-shadow: 0 0 12px rgba(255,59,48,0.6); }
   .status-text.play { color: var(--led-green); text-shadow: 0 0 12px rgba(32,217,122,0.5); }
   .status-text.dub  { color: var(--led-blue);  text-shadow: 0 0 12px rgba(76,194,255,0.5); }
-
-  .counter {
-    font-size: 14px;
-    color: var(--ink-dim);
-    letter-spacing: 0.1em;
-  }
+  .counter { font-size: 14px; color: var(--ink-dim); letter-spacing: 0.1em; }
   .counter b { color: var(--ink); font-weight: 500; }
-
-  .ring-wrap {
-    margin: 14px auto 6px;
-    position: relative;
-    width: 180px; height: 180px;
-  }
+  .ring-wrap { margin: 14px auto 6px; position: relative; width: 180px; height: 180px; }
   .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .ring-track { fill: none; stroke: #0c0c0c; stroke-width: 8; }
   .ring-progress {
-    fill: none;
-    stroke: var(--led-amber);
-    stroke-width: 8;
-    stroke-linecap: round;
+    fill: none; stroke: var(--led-amber);
+    stroke-width: 8; stroke-linecap: round;
     transition: stroke 0.15s;
   }
   .ring-progress.rec  { stroke: var(--led-red); }
@@ -157,75 +113,28 @@
     align-items: center; justify-content: center;
     gap: 4px;
   }
-  .layer-count {
-    font-family: var(--display);
-    font-size: 38px;
-    color: var(--ink);
-    line-height: 1;
-  }
-  .layer-label {
-    font-size: 9px;
-    letter-spacing: 0.3em;
-    color: var(--ink-dim);
-    text-transform: uppercase;
-  }
-
-  .beats {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 12px 0 4px;
-  }
+  .layer-count { font-family: var(--display); font-size: 38px; color: var(--ink); line-height: 1; }
+  .layer-label { font-size: 9px; letter-spacing: 0.3em; color: var(--ink-dim); text-transform: uppercase; }
+  .beats { display: flex; justify-content: center; gap: 10px; margin: 12px 0 4px; }
   .beat {
-    width: 10px; height: 10px;
-    border-radius: 50%;
+    width: 10px; height: 10px; border-radius: 50%;
     background: #0a0a0a;
     border: 1px solid #2a2a2a;
     transition: all 0.08s;
   }
-  .beat.on {
-    background: var(--led-amber);
-    border-color: var(--led-amber);
-    box-shadow: 0 0 12px var(--led-amber), 0 0 4px var(--led-amber);
-  }
-  .beat.on.downbeat {
-    background: var(--led-red);
-    border-color: var(--led-red);
-    box-shadow: 0 0 14px var(--led-red), 0 0 4px var(--led-red);
-  }
-
-  .knobs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
+  .beat.on { background: var(--led-amber); border-color: var(--led-amber); box-shadow: 0 0 12px var(--led-amber), 0 0 4px var(--led-amber); }
+  .beat.on.downbeat { background: var(--led-red); border-color: var(--led-red); box-shadow: 0 0 14px var(--led-red), 0 0 4px var(--led-red); }
+  .knobs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
   .knob {
     background: #0d0d0d;
     border: 1px solid var(--rule);
     border-radius: 8px;
     padding: 10px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
   }
-  .knob .lbl {
-    font-size: 9px;
-    letter-spacing: 0.25em;
-    color: var(--ink-dim);
-    text-transform: uppercase;
-  }
-  .knob .val {
-    font-size: 18px;
-    color: var(--ink);
-    min-width: 50px;
-    text-align: right;
-  }
-  .knob .stepper {
-    display: flex;
-    gap: 4px;
-    margin-left: 8px;
-  }
+  .knob .lbl { font-size: 9px; letter-spacing: 0.25em; color: var(--ink-dim); text-transform: uppercase; }
+  .knob .val { font-size: 18px; color: var(--ink); min-width: 50px; text-align: right; }
+  .knob .stepper { display: flex; gap: 4px; margin-left: 8px; }
   .knob button {
     width: 26px; height: 26px;
     background: #1a1a1a;
@@ -239,26 +148,17 @@
   }
   .knob button:active { background: #2a2a2a; }
   .knob button:disabled { opacity: 0.3; cursor: not-allowed; }
-
   .met-toggle {
     grid-column: span 2;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
     background: #0d0d0d;
     border: 1px solid var(--rule);
     border-radius: 8px;
     padding: 10px 14px;
   }
-  .met-toggle .lbl {
-    font-size: 9px;
-    letter-spacing: 0.25em;
-    color: var(--ink-dim);
-    text-transform: uppercase;
-  }
+  .met-toggle .lbl { font-size: 9px; letter-spacing: 0.25em; color: var(--ink-dim); text-transform: uppercase; }
   .switch {
-    position: relative;
-    width: 56px; height: 28px;
+    position: relative; width: 56px; height: 28px;
     background: #1a1a1a;
     border: 1px solid #2a2a2a;
     border-radius: 14px;
@@ -266,40 +166,26 @@
     transition: background 0.15s;
   }
   .switch::after {
-    content: '';
-    position: absolute;
-    top: 2px; left: 2px;
-    width: 22px; height: 22px;
-    border-radius: 50%;
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 22px; height: 22px; border-radius: 50%;
     background: linear-gradient(180deg, #4a4a4a, #2a2a2a);
     box-shadow: 0 1px 2px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
     transition: transform 0.2s ease;
   }
   .switch.on { background: rgba(32,217,122,0.18); border-color: var(--led-green); }
   .switch.on::after { transform: translateX(28px); background: linear-gradient(180deg, var(--led-green), #1aa860); box-shadow: 0 0 12px rgba(32,217,122,0.6); }
-
-  .switches {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
+  .switches { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
   .fsw {
     aspect-ratio: 1.6 / 1;
     background: linear-gradient(180deg, #2a2a2a 0%, #161616 100%);
     border: 1px solid #1a1a1a;
     border-radius: 10px;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
     gap: 6px;
-    color: var(--ink);
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    color: var(--ink); font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.2em; text-transform: uppercase;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.06),
       inset 0 -2px 4px rgba(0,0,0,0.4),
@@ -316,8 +202,7 @@
       0 2px 6px rgba(0,0,0,0.5);
   }
   .fsw .led {
-    width: 8px; height: 8px;
-    border-radius: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
     background: #1a1a1a;
     border: 1px solid #0a0a0a;
     box-shadow: inset 0 1px 1px rgba(0,0,0,0.6);
@@ -328,68 +213,35 @@
   .fsw.play .led  { background: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
   .fsw.dub .led   { background: var(--led-blue);  box-shadow: 0 0 10px var(--led-blue); animation: pulse 0.6s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-
   .fsw-main { grid-column: span 2; aspect-ratio: 3.2 / 1; }
-
-  .meter-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 14px 0 4px;
-    padding: 0 2px;
-  }
-  .meter-lbl {
-    font-size: 9px;
-    letter-spacing: 0.25em;
-    color: var(--ink-dim);
-  }
+  .meter-row { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; padding: 0 2px; }
+  .meter-lbl { font-size: 9px; letter-spacing: 0.25em; color: var(--ink-dim); }
   .meter {
-    flex: 1;
-    height: 8px;
+    flex: 1; height: 8px;
     background: #050505;
     border: 1px solid var(--rule);
     border-radius: 4px;
     overflow: hidden;
   }
   .meter-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg,
-      var(--led-green) 0%,
-      var(--led-green) 60%,
-      var(--led-amber) 80%,
-      var(--led-red) 100%);
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--led-green) 0%, var(--led-green) 60%, var(--led-amber) 80%, var(--led-red) 100%);
     transition: width 0.04s linear;
   }
-  .meter-val {
-    font-size: 10px;
-    color: var(--ink-dim);
-    min-width: 40px;
-    text-align: right;
-  }
-
-  .secondary {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 12px;
-  }
+  .meter-val { font-size: 10px; color: var(--ink-dim); min-width: 40px; text-align: right; }
+  .secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
   .btn {
     background: #141414;
     border: 1px solid var(--rule);
     color: var(--ink-dim);
     font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    padding: 12px 0;
-    border-radius: 6px;
+    font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+    padding: 12px 0; border-radius: 6px;
     cursor: pointer;
   }
   .btn:active { background: #1f1f1f; color: var(--ink); }
   .btn:disabled { opacity: 0.3; cursor: not-allowed; }
   .btn.danger:active { color: var(--led-red); border-color: var(--led-red); }
-
   .start-overlay {
     position: fixed; inset: 0;
     background: rgba(10,10,10,0.96);
@@ -401,16 +253,10 @@
     backdrop-filter: blur(4px);
   }
   .start-overlay.hidden { display: none; }
-  .start-overlay h1 {
-    font-family: var(--display);
-    font-size: 32px;
-    letter-spacing: 0.1em;
-    margin: 0 0 12px;
-  }
+  .start-overlay h1 { font-family: var(--display); font-size: 32px; letter-spacing: 0.1em; margin: 0 0 12px; }
   .start-overlay h1 .slash { color: var(--led-red); }
   .start-overlay p {
-    font-size: 12px;
-    line-height: 1.7;
+    font-size: 12px; line-height: 1.7;
     color: var(--ink-dim);
     max-width: 320px;
     margin: 0 0 24px;
@@ -429,31 +275,17 @@
     box-shadow: 0 0 30px rgba(255,59,48,0.4);
   }
   .start-btn:active { transform: scale(0.96); }
-  .start-error {
-    margin-top: 18px;
-    color: var(--led-red);
-    font-size: 11px;
-    max-width: 320px;
-    line-height: 1.5;
-  }
-
+  .start-error { margin-top: 18px; color: var(--led-red); font-size: 11px; max-width: 320px; line-height: 1.5; }
   .footer {
     margin-top: 16px;
-    font-size: 9px;
-    letter-spacing: 0.2em;
+    font-size: 9px; letter-spacing: 0.2em;
     color: var(--ink-faint);
     text-align: center;
     text-transform: uppercase;
     line-height: 1.8;
-    max-width: 440px;
-    width: 100%;
+    max-width: 440px; width: 100%;
   }
-  .footer #activeDevice {
-    color: var(--ink-dim);
-    word-break: break-word;
-    padding: 0 10px;
-  }
-
+  .footer #activeDevice { color: var(--ink-dim); word-break: break-word; padding: 0 10px; }
   @media (max-width: 380px) {
     .ring-wrap { width: 150px; height: 150px; }
     .layer-count { font-size: 32px; }
@@ -464,7 +296,7 @@
 <body>
 
 <div class="start-overlay" id="startOverlay">
-  <h1>LOOP<span class="slash">/</span>02</h1>
+  <h1>LOOP<span class="slash">/</span>02.1</h1>
   <p>
     Connect your guitar amp's output to your phone, plug headphones into the amp's monitor, and tap below to grant microphone access. Use headphones to prevent feedback.
   </p>
@@ -474,8 +306,8 @@
 
 <div class="pedal">
   <div class="header">
-    <div class="brand">LOOP<span class="slash">/</span>02</div>
-    <div class="model">v2 · bare · single-loop</div>
+    <div class="brand">LOOP<span class="slash">/</span>02.1</div>
+    <div class="model">v2.1 · audiobuffer playback</div>
   </div>
 
   <div class="display">
@@ -554,71 +386,89 @@
 
 <div class="footer">
   <div id="activeDevice">IN: —</div>
-  <div>v2 · BARE getUserMedia · OS-ROUTED · USE HEADPHONES</div>
+  <div>v2.1 · BUFFER PLAYBACK · OS-ROUTED · USE HEADPHONES</div>
 </div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   LOOP/02 — Guitar Looper (simplified audio capture)
+   LOOP/02.1 — Guitar Looper
 
-   Capture: getUserMedia({audio: true}) — no constraints.
-   Mirrors the approach of a reference Android web app that works
-   reliably with USB audio interfaces. The OS picks the input.
-
-   Everything else (count-in, bar-quantized record, overdubs,
-   undo/redo, metronome) is unchanged from v1.
+   Architecture change vs v2:
+   - latencyHint: 'playback' (bigger buffers, more stable on Android)
+   - Recording: worklet writes incoming samples into a Float32Array.
+     No per-sample playback in the worklet during this phase.
+   - Playback: native AudioBufferSourceNode with loop=true. Browser
+     handles the read in optimized code, no per-sample JS.
+   - Overdub: worklet writes new input into a separate dub buffer.
+     At loop wrap, we sum dub into the main AudioBuffer's channel data
+     and swap the playing source for a new one sample-aligned.
+   - Position tracking: derived from ctx.currentTime - loopStartTime,
+     polled via requestAnimationFrame. No message-port chatter on the
+     audio thread for every beat.
+   - Input meter: worklet still reports peak level for the UI meter.
    ═══════════════════════════════════════════════════════════════ */
 
 const workletSrc = `
-class LooperProcessor extends AudioWorkletProcessor {
+class CaptureProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.buffer = null;
+    this.mode = 'monitor';          // 'monitor' | 'record' | 'dub'
+    this.buffer = null;             // Float32Array target for write
+    this.writeHead = 0;
     this.bufferLength = 0;
-    this.playhead = 0;
-    this.mode = 'idle';
-    this.lastBeat = -1;
-    this.beatsPerLoop = 16;
     this.peakIn = 0;
     this.framesSinceReport = 0;
-    this.reportInterval = 2048;
+    this.reportInterval = 4096;     // ~85ms — relaxed for stability
 
     this.port.onmessage = (e) => {
       const m = e.data;
-      if (m.type === 'init') {
+      if (m.type === 'startRecord') {
+        this.buffer = new Float32Array(m.length);
         this.bufferLength = m.length;
-        this.buffer = new Float32Array(this.bufferLength);
-        this.playhead = 0;
-        this.beatsPerLoop = m.beats;
-        this.lastBeat = -1;
-      } else if (m.type === 'mode') {
-        this.mode = m.mode;
-        if ((m.mode === 'recording' || m.mode === 'playing') && m.resetPlayhead) {
-          this.playhead = 0; this.lastBeat = -1;
+        this.writeHead = 0;
+        this.mode = 'record';
+      } else if (m.type === 'startDub') {
+        this.buffer = new Float32Array(m.length);
+        this.bufferLength = m.length;
+        this.writeHead = 0;
+        this.mode = 'dub';
+      } else if (m.type === 'stopCapture') {
+        // flush whatever we have back to main thread
+        const out = this.buffer;
+        this.buffer = null;
+        this.mode = 'monitor';
+        if (out) {
+          this.port.postMessage({ type: 'captureDone', buffer: out.buffer, writeHead: this.writeHead }, [out.buffer]);
         }
-      } else if (m.type === 'replaceBuffer') {
-        this.buffer = new Float32Array(m.buffer);
-      } else if (m.type === 'getBuffer') {
-        const copy = new Float32Array(this.buffer).buffer;
-        this.port.postMessage({ type: 'buffer', buffer: copy }, [copy]);
+      } else if (m.type === 'reset') {
+        this.mode = 'monitor';
+        this.buffer = null;
       }
     };
   }
 
   process(inputs, outputs) {
     const input = inputs[0];
-    const output = outputs[0];
-    if (!output || !output[0]) return true;
-    const outL = output[0];
-    const outR = output[1] || output[0];
     const inCh = (input && input[0]) ? input[0] : null;
-    const frames = outL.length;
+    const out = outputs[0];
 
-    if (inCh) {
-      for (let i = 0; i < frames; i++) {
-        const a = inCh[i] < 0 ? -inCh[i] : inCh[i];
-        if (a > this.peakIn) this.peakIn = a;
+    // worklet produces silence — playback is handled by AudioBufferSourceNode elsewhere
+    if (out && out[0]) {
+      const outL = out[0];
+      const outR = out[1] || out[0];
+      for (let i = 0; i < outL.length; i++) {
+        outL[i] = 0;
+        if (outR !== outL) outR[i] = 0;
       }
+    }
+
+    if (!inCh) return true;
+    const frames = inCh.length;
+
+    // input level metering
+    for (let i = 0; i < frames; i++) {
+      const a = inCh[i] < 0 ? -inCh[i] : inCh[i];
+      if (a > this.peakIn) this.peakIn = a;
     }
     this.framesSinceReport += frames;
     if (this.framesSinceReport >= this.reportInterval) {
@@ -627,63 +477,54 @@ class LooperProcessor extends AudioWorkletProcessor {
       this.framesSinceReport = 0;
     }
 
-    if (!this.buffer || this.mode === 'idle') {
-      for (let i = 0; i < frames; i++) { outL[i] = 0; if (outR !== outL) outR[i] = 0; }
-      return true;
-    }
-
-    for (let i = 0; i < frames; i++) {
-      const inSample = inCh ? inCh[i] : 0;
-      let outSample = 0;
-
-      if (this.mode === 'recording') {
-        this.buffer[this.playhead] = inSample;
-        outSample = 0;
-      } else if (this.mode === 'playing') {
-        outSample = this.buffer[this.playhead];
-      } else if (this.mode === 'overdubbing') {
-        outSample = this.buffer[this.playhead];
-        this.buffer[this.playhead] = this.buffer[this.playhead] + inSample;
-      }
-
-      outL[i] = outSample;
-      if (outR !== outL) outR[i] = outSample;
-
-      this.playhead++;
-      if (this.playhead >= this.bufferLength) {
-        this.playhead = 0;
-        this.port.postMessage({ type: 'loop' });
-      }
-
-      const beatIdx = Math.floor((this.playhead / this.bufferLength) * this.beatsPerLoop);
-      if (beatIdx !== this.lastBeat) {
-        this.lastBeat = beatIdx;
-        this.port.postMessage({ type: 'beat', beat: beatIdx, position: this.playhead / this.bufferLength });
+    // write into target buffer when recording or dubbing
+    if ((this.mode === 'record' || this.mode === 'dub') && this.buffer) {
+      const remain = this.bufferLength - this.writeHead;
+      const n = Math.min(remain, frames);
+      for (let i = 0; i < n; i++) this.buffer[this.writeHead + i] = inCh[i];
+      this.writeHead += n;
+      if (this.writeHead >= this.bufferLength) {
+        // finished — auto-flush
+        const done = this.buffer;
+        this.buffer = null;
+        const finishedMode = this.mode;
+        this.mode = 'monitor';
+        this.port.postMessage({ type: 'captureDone', buffer: done.buffer, fromMode: finishedMode }, [done.buffer]);
       }
     }
+
     return true;
   }
 }
-registerProcessor('looper-processor', LooperProcessor);
+registerProcessor('capture-processor', CaptureProcessor);
 `;
 
+// ─── State ───────────────────────────────────────────────
 const state = {
   bpm: 100,
   bars: 4,
   beatsPerBar: 4,
   metronomeInLoop: false,
   layers: 0,
-  appState: 'idle',
+  appState: 'idle',  // 'idle' | 'countin' | 'recording' | 'playing' | 'dubArmed' | 'dubbing'
   undoStack: [],
   redoStack: [],
 };
 
 let ctx, micStream, micSource, workletNode, metronomeGain;
-let metronomeNextTime = 0;
-let metronomeBeatCount = 0;
-let metronomeTimerId = null;
-let pendingOverdub = false;
+let metronomeNextTime = 0, metronomeBeatCount = 0, metronomeTimerId = null;
 
+// Loop state
+let loopBuffer = null;          // AudioBuffer holding the current loop
+let loopDuration = 0;           // seconds
+let loopStartTime = 0;          // ctx.currentTime when loop playback began (this cycle)
+let currentSource = null;       // AudioBufferSourceNode currently playing
+let positionRafId = null;
+
+// Pending dub awaiting downbeat
+let pendingDubStart = null;     // audio time at which dub should start
+
+// ─── Init audio ─────────────────────────────────────────
 async function initAudio() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     const isSecure = window.isSecureContext;
@@ -695,10 +536,10 @@ async function initAudio() {
     throw new Error('Audio capture not available.' + hint);
   }
 
-  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+  // 'playback' tells the browser we prioritize stability over latency.
+  // On Android this typically gives bigger buffers and far fewer dropouts.
+  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
 
-  // bare request — no deviceId, no echoCancellation toggles, no channelCount.
-  // Lets Android's system audio routing pick the active input.
   try {
     micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
   } catch (err) {
@@ -707,8 +548,9 @@ async function initAudio() {
 
   const track = micStream.getAudioTracks()[0];
   const settings = track ? track.getSettings() : {};
-  console.log('[LOOP/02] Track label:', track ? track.label : '(none)');
-  console.log('[LOOP/02] Track settings:', settings);
+  console.log('[LOOP/02.1] baseLatency:', ctx.baseLatency, 'outputLatency:', ctx.outputLatency, 'sampleRate:', ctx.sampleRate);
+  console.log('[LOOP/02.1] Track label:', track ? track.label : '(none)');
+  console.log('[LOOP/02.1] Track settings:', settings);
   ui.activeDevice.textContent = 'IN: ' + (track && track.label ? track.label : 'system default');
 
   const blob = new Blob([workletSrc], { type: 'application/javascript' });
@@ -716,13 +558,15 @@ async function initAudio() {
   await ctx.audioWorklet.addModule(url);
 
   micSource = ctx.createMediaStreamSource(micStream);
-  workletNode = new AudioWorkletNode(ctx, 'looper-processor', {
+  workletNode = new AudioWorkletNode(ctx, 'capture-processor', {
     numberOfInputs: 1,
     numberOfOutputs: 1,
-    outputChannelCount: [2],
+    outputChannelCount: [1],
     channelCount: 1,
   });
 
+  // Connect mic into worklet (so it can read input), worklet output to
+  // destination only to keep it alive — it produces silence.
   micSource.connect(workletNode);
   workletNode.connect(ctx.destination);
 
@@ -730,24 +574,22 @@ async function initAudio() {
   metronomeGain.gain.value = 0.5;
   metronomeGain.connect(ctx.destination);
 
-  attachWorkletMessages();
+  workletNode.port.onmessage = onWorkletMessage;
 }
 
-function attachWorkletMessages() {
-  workletNode.port.onmessage = (e) => {
-    const m = e.data;
-    if (m.type === 'beat') {
-      updateRing(m.position);
-      const localBeat = m.beat % (state.bars * state.beatsPerBar);
-      flashBeat(localBeat, localBeat % state.beatsPerBar === 0);
-      const bar = Math.floor(localBeat / state.beatsPerBar) + 1;
-      ui.barCounter.textContent = bar;
-    } else if (m.type === 'loop') {
-      loopWrapWithOverdub();
-    } else if (m.type === 'level') {
-      updateMeter(m.peak);
+// ─── Worklet messages ───────────────────────────────────
+let captureResolve = null;
+function onWorkletMessage(e) {
+  const m = e.data;
+  if (m.type === 'level') {
+    updateMeter(m.peak);
+  } else if (m.type === 'captureDone') {
+    if (captureResolve) {
+      const fn = captureResolve;
+      captureResolve = null;
+      fn(new Float32Array(m.buffer));
     }
-  };
+  }
 }
 
 function updateMeter(peak) {
@@ -755,6 +597,7 @@ function updateMeter(peak) {
   ui.meterVal.textContent = peak < 0.0001 ? '−∞' : (20 * Math.log10(peak)).toFixed(0) + ' dB';
 }
 
+// ─── Metronome ──────────────────────────────────────────
 function clickAt(time, accent) {
   const osc = ctx.createOscillator();
   const env = ctx.createGain();
@@ -765,6 +608,15 @@ function clickAt(time, accent) {
   osc.connect(env).connect(metronomeGain);
   osc.start(time);
   osc.stop(time + 0.08);
+}
+
+function scheduleMetronomeFromTime(startTime, totalBeats) {
+  // Schedule all metronome clicks for one loop cycle.
+  // Called once per cycle when in-loop metronome is enabled.
+  const beatDur = 60 / state.bpm;
+  for (let i = 0; i < totalBeats; i++) {
+    clickAt(startTime + i * beatDur, i % state.beatsPerBar === 0);
+  }
 }
 
 function startMetronomeScheduler(startBeatIndex = 0) {
@@ -780,120 +632,282 @@ function startMetronomeScheduler(startBeatIndex = 0) {
     }
   };
   scheduler();
-  metronomeTimerId = setInterval(scheduler, 25);
+  metronomeTimerId = setInterval(scheduler, 50);
 }
-
 function stopMetronomeScheduler() {
   if (metronomeTimerId) { clearInterval(metronomeTimerId); metronomeTimerId = null; }
 }
 
+// ─── Loop cycle: recording first pass ────────────────────
 async function runCountIn() {
   setStatus('cnt', 'COUNT-IN');
   state.appState = 'countin';
   ui.mainSw.classList.add('armed');
-  const beatDur = 60 / state.bpm;
-  const startAt = ctx.currentTime + 0.1;
 
+  const beatDur = 60 / state.bpm;
+  const startAt = ctx.currentTime + 0.15;
+
+  // schedule count-in clicks
   for (let i = 0; i < state.beatsPerBar; i++) {
-    const t = startAt + i * beatDur;
-    clickAt(t, i === 0);
-    const delay = (t - ctx.currentTime) * 1000;
+    clickAt(startAt + i * beatDur, i === 0);
+    const delay = (startAt + i * beatDur - ctx.currentTime) * 1000;
     setTimeout(() => { flashCountBeat(i); ui.barCounter.textContent = 0; }, delay);
   }
 
+  // Recording target start time:
   const recordStartTime = startAt + state.beatsPerBar * beatDur;
-  await new Promise(r => setTimeout(r, (recordStartTime - ctx.currentTime) * 1000));
-
   const totalBeats = state.bars * state.beatsPerBar;
-  const loopSamples = Math.round(totalBeats * beatDur * ctx.sampleRate);
+  const loopSecs = totalBeats * beatDur;
+  const loopSamples = Math.round(loopSecs * ctx.sampleRate);
 
-  workletNode.port.postMessage({ type: 'init', length: loopSamples, beats: totalBeats });
-  workletNode.port.postMessage({ type: 'mode', mode: 'recording', resetPlayhead: true });
+  // Tell worklet to start capturing — it'll be quietly active until it
+  // sees input frames after recordStartTime. We approximate by simply
+  // starting the worklet record now and trimming on completion.
+  // For tighter sync: wait until just before recordStartTime, then start.
+  const waitMs = (recordStartTime - ctx.currentTime) * 1000 - 5;
+  if (waitMs > 0) await new Promise(r => setTimeout(r, waitMs));
+
+  // Begin recording in worklet
+  const finishedBuffer = new Promise(resolve => { captureResolve = resolve; });
+  workletNode.port.postMessage({ type: 'startRecord', length: loopSamples });
 
   state.appState = 'recording';
   setStatus('rec', 'RECORDING');
   ui.mainSw.classList.remove('armed');
   ui.mainSw.classList.add('rec');
   ui.ringProgress.classList.add('rec');
-  ui.mainLabel.textContent = 'STOP REC';
+  ui.mainLabel.textContent = '— RECORDING —';
 
-  if (state.metronomeInLoop) startMetronomeScheduler(0);
-}
+  loopDuration = loopSecs;
 
-function loopWrapWithOverdub() {
-  if (state.appState === 'recording') {
-    state.appState = 'playing';
-    state.layers = 1;
-    workletNode.port.postMessage({ type: 'mode', mode: 'playing' });
-    setStatus('play', 'PLAYING');
-    ui.mainSw.classList.remove('rec');
-    ui.mainSw.classList.add('play');
-    ui.ringProgress.classList.remove('rec');
-    ui.ringProgress.classList.add('play');
-    ui.mainLabel.textContent = 'OVERDUB';
-    ui.layerCount.textContent = state.layers;
-    ui.undoSw.disabled = false;
-    ui.stopBtn.disabled = false;
-    ui.clearBtn.disabled = false;
+  // schedule in-loop metronome ticks for the recording bar(s)
+  if (state.metronomeInLoop) {
+    scheduleMetronomeFromTime(recordStartTime, totalBeats);
   }
-  if (pendingOverdub && state.appState === 'playing') {
-    pendingOverdub = false;
-    startOverdubNow();
-  }
-}
 
-function snapshotBuffer() {
-  return new Promise((resolve) => {
-    const orig = workletNode.port.onmessage;
-    workletNode.port.onmessage = (e) => {
-      if (e.data.type === 'buffer') {
-        workletNode.port.onmessage = orig;
-        resolve(e.data.buffer);
-      } else if (orig) orig(e);
-    };
-    workletNode.port.postMessage({ type: 'getBuffer' });
-  });
-}
+  // animate ring during recording
+  const recAnimStart = ctx.currentTime;
+  animateRing(recAnimStart, loopSecs, totalBeats);
 
-async function armOverdub() {
-  const snap = await snapshotBuffer();
-  state.undoStack.push(snap);
-  state.redoStack = [];
-  ui.redoSw.disabled = true;
-  pendingOverdub = true;
-  setStatus('dub', 'DUB ARMED');
-  ui.mainSw.classList.add('armed');
-}
+  // Wait for capture to complete
+  const captured = await finishedBuffer;
 
-function startOverdubNow() {
-  workletNode.port.postMessage({ type: 'mode', mode: 'overdubbing' });
-  state.appState = 'overdubbing';
-  state.layers++;
+  // Build the AudioBuffer and start playback at the next loop boundary
+  // (which is "now" because the worklet finished exactly at loopSecs).
+  loopBuffer = ctx.createBuffer(1, captured.length, ctx.sampleRate);
+  loopBuffer.copyToChannel(captured, 0);
+
+  state.layers = 1;
   ui.layerCount.textContent = state.layers;
-  setStatus('dub', 'OVERDUB');
-  ui.mainSw.classList.remove('armed','play');
-  ui.mainSw.classList.add('dub');
-  ui.ringProgress.classList.remove('play');
-  ui.ringProgress.classList.add('dub');
-  ui.mainLabel.textContent = 'END DUB';
+  ui.undoSw.disabled = false;
+  ui.stopBtn.disabled = false;
+  ui.clearBtn.disabled = false;
+
+  // Begin playback immediately at the natural loop boundary
+  startPlayback(ctx.currentTime + 0.005);
+  enterPlayingState();
 }
 
-function endOverdub() {
-  workletNode.port.postMessage({ type: 'mode', mode: 'playing' });
+// ─── Playback control ───────────────────────────────────
+function startPlayback(when) {
+  stopCurrentSource();
+  if (!loopBuffer) return;
+  const src = ctx.createBufferSource();
+  src.buffer = loopBuffer;
+  src.loop = true;
+  src.connect(ctx.destination);
+  src.start(when);
+  currentSource = src;
+  loopStartTime = when;
+
+  // schedule in-loop metronome for this cycle and continuously
+  if (state.metronomeInLoop) {
+    scheduleMetronomeFromTime(when, state.bars * state.beatsPerBar);
+    // continue scheduling subsequent cycles via interval
+    if (!metronomeTimerId) {
+      metronomeTimerId = setInterval(() => {
+        // schedule a cycle ahead if needed
+        const ahead = loopStartTime + loopDuration;
+        if (ahead < ctx.currentTime + 0.5) {
+          loopStartTime = ahead;  // we don't actually want to mutate this here
+        }
+      }, 200);
+      // simpler: schedule next cycle's clicks repeatedly
+      stopMetronomeScheduler();
+      startCyclicMetronome();
+    }
+  }
+
+  if (positionRafId) cancelAnimationFrame(positionRafId);
+  positionLoop();
+}
+
+function startCyclicMetronome() {
+  // schedule metronome for cycles ahead so it stays in sync with the loop
+  const beatDur = 60 / state.bpm;
+  const totalBeats = state.bars * state.beatsPerBar;
+  let nextCycleStart = loopStartTime + loopDuration;
+  metronomeTimerId = setInterval(() => {
+    while (nextCycleStart < ctx.currentTime + 0.5) {
+      scheduleMetronomeFromTime(nextCycleStart, totalBeats);
+      nextCycleStart += loopDuration;
+    }
+  }, 100);
+}
+
+function stopCurrentSource() {
+  if (currentSource) {
+    try { currentSource.stop(); } catch (_) {}
+    try { currentSource.disconnect(); } catch (_) {}
+    currentSource = null;
+  }
+}
+
+// ─── Position polling (drives ring + beats) ─────────────
+function positionLoop() {
+  if (!loopBuffer || state.appState === 'idle') {
+    positionRafId = null;
+    return;
+  }
+  const elapsed = ctx.currentTime - loopStartTime;
+  let position = (elapsed % loopDuration) / loopDuration;
+  if (position < 0) position = 0;
+  if (position >= 1) position -= 1;
+  updateRing(position);
+
+  const totalBeats = state.bars * state.beatsPerBar;
+  const beatIdx = Math.floor(position * totalBeats);
+  flashBeat(beatIdx, beatIdx % state.beatsPerBar === 0);
+  ui.barCounter.textContent = Math.floor(beatIdx / state.beatsPerBar) + 1;
+
+  positionRafId = requestAnimationFrame(positionLoop);
+}
+
+// ─── State transitions ──────────────────────────────────
+function enterPlayingState() {
   state.appState = 'playing';
   setStatus('play', 'PLAYING');
-  ui.mainSw.classList.remove('dub');
+  ui.mainSw.classList.remove('rec','dub','armed');
   ui.mainSw.classList.add('play');
-  ui.ringProgress.classList.remove('dub');
+  ui.ringProgress.classList.remove('rec','dub');
   ui.ringProgress.classList.add('play');
   ui.mainLabel.textContent = 'OVERDUB';
 }
 
+// ─── Overdub ────────────────────────────────────────────
+async function armOverdub() {
+  if (!loopBuffer) return;
+  // snapshot current buffer for undo
+  const snap = new Float32Array(loopBuffer.length);
+  loopBuffer.copyFromChannel(snap, 0);
+  state.undoStack.push(snap);
+  state.redoStack = [];
+  ui.redoSw.disabled = true;
+
+  // Schedule dub to start at next loop wrap (next loopStartTime + loopDuration)
+  const now = ctx.currentTime;
+  let nextWrap = loopStartTime + loopDuration;
+  while (nextWrap < now + 0.05) nextWrap += loopDuration;
+  pendingDubStart = nextWrap;
+
+  state.appState = 'dubArmed';
+  setStatus('dub', 'DUB ARMED');
+  ui.mainSw.classList.add('armed');
+  ui.mainLabel.textContent = 'END DUB';
+
+  // Wait until just before dub start, then trigger
+  const waitMs = (pendingDubStart - now) * 1000 - 10;
+  setTimeout(startDubCapture, Math.max(0, waitMs));
+}
+
+async function startDubCapture() {
+  if (state.appState !== 'dubArmed') return;
+  state.appState = 'dubbing';
+  setStatus('dub', 'OVERDUB');
+  ui.mainSw.classList.remove('armed');
+  ui.mainSw.classList.add('dub');
+  ui.ringProgress.classList.remove('play');
+  ui.ringProgress.classList.add('dub');
+
+  // Start capturing a full loop's worth of new audio into dub buffer
+  const captureLen = loopBuffer.length;
+  const finished = new Promise(resolve => { captureResolve = resolve; });
+  workletNode.port.postMessage({ type: 'startDub', length: captureLen });
+
+  // also reset loopStartTime to align ring with the new cycle
+  loopStartTime = pendingDubStart;
+  pendingDubStart = null;
+
+  const dubData = await finished;
+
+  // If user ended dub early via 'END DUB' button, we'll have stopped
+  // capture and got a partial buffer. In v2.1 we still treat it as a
+  // full-cycle dub — un-captured tail is silent (zeros). That's fine
+  // for overdubbing.
+
+  // Mix dub into loopBuffer
+  const channel = loopBuffer.getChannelData(0);
+  const n = Math.min(channel.length, dubData.length);
+  for (let i = 0; i < n; i++) channel[i] = channel[i] + dubData[i];
+
+  // Swap to a new source pointing at the updated buffer at the next wrap
+  // (i.e. at loopStartTime + loopDuration)
+  const swapTime = loopStartTime + loopDuration;
+  const src = ctx.createBufferSource();
+  src.buffer = loopBuffer;
+  src.loop = true;
+  src.connect(ctx.destination);
+  src.start(swapTime);
+
+  // stop old source at exactly swap time
+  if (currentSource) {
+    try { currentSource.stop(swapTime); } catch (_) {}
+  }
+  currentSource = src;
+  loopStartTime = swapTime;
+
+  state.layers++;
+  ui.layerCount.textContent = state.layers;
+
+  // back to playing
+  if (state.appState === 'dubbing') {
+    state.appState = 'playing';
+    setStatus('play', 'PLAYING');
+    ui.mainSw.classList.remove('dub');
+    ui.mainSw.classList.add('play');
+    ui.ringProgress.classList.remove('dub');
+    ui.ringProgress.classList.add('play');
+    ui.mainLabel.textContent = 'OVERDUB';
+  }
+}
+
+function endOverdub() {
+  // user requested early end of dub — stop capture, let what was
+  // captured (filled with zeros for the rest) get mixed in.
+  if (state.appState === 'dubbing') {
+    workletNode.port.postMessage({ type: 'stopCapture' });
+    // the captureDone handler will continue the rest of the flow
+  } else if (state.appState === 'dubArmed') {
+    // cancel before it starts
+    pendingDubStart = null;
+    state.appState = 'playing';
+    setStatus('play', 'PLAYING');
+    ui.mainSw.classList.remove('armed');
+    ui.mainSw.classList.add('play');
+    ui.mainLabel.textContent = 'OVERDUB';
+    // pop the undo snapshot since dub never happened
+    state.undoStack.pop();
+    if (state.undoStack.length === 0) ui.undoSw.disabled = true;
+  }
+}
+
+// ─── Stop / clear ───────────────────────────────────────
 function stopLoop() {
-  workletNode.port.postMessage({ type: 'mode', mode: 'idle' });
+  stopCurrentSource();
   stopMetronomeScheduler();
+  if (positionRafId) { cancelAnimationFrame(positionRafId); positionRafId = null; }
   state.appState = 'idle';
-  pendingOverdub = false;
+  pendingDubStart = null;
   setStatus('idle', 'STOPPED');
   ui.mainSw.classList.remove('rec','play','dub','armed');
   ui.ringProgress.classList.remove('rec','play','dub');
@@ -903,13 +917,16 @@ function stopLoop() {
 }
 
 function clearLoop() {
-  workletNode.port.postMessage({ type: 'mode', mode: 'idle' });
+  stopCurrentSource();
   stopMetronomeScheduler();
+  if (positionRafId) { cancelAnimationFrame(positionRafId); positionRafId = null; }
+  workletNode.port.postMessage({ type: 'reset' });
+  loopBuffer = null;
   state.appState = 'idle';
   state.layers = 0;
   state.undoStack = [];
   state.redoStack = [];
-  pendingOverdub = false;
+  pendingDubStart = null;
   ui.layerCount.textContent = '0';
   ui.barCounter.textContent = '0';
   ui.mainSw.classList.remove('rec','play','dub','armed');
@@ -924,39 +941,76 @@ function clearLoop() {
   clearBeats();
 }
 
-async function doUndo() {
-  if (state.undoStack.length === 0) return;
-  const current = await snapshotBuffer();
+// ─── Undo / Redo (replace AudioBuffer contents, restart source) ──
+function snapshotCurrent() {
+  if (!loopBuffer) return null;
+  const snap = new Float32Array(loopBuffer.length);
+  loopBuffer.copyFromChannel(snap, 0);
+  return snap;
+}
+
+function applyBufferSnapshot(data) {
+  // Write into loopBuffer's channel, restart playback aligned to next wrap
+  loopBuffer.copyToChannel(data, 0);
+  // Calculate where we are in the current loop, restart at that position
+  const elapsed = ctx.currentTime - loopStartTime;
+  const phase = ((elapsed % loopDuration) + loopDuration) % loopDuration;
+  // Stop the old source, start a new one aligned to keep position continuous
+  const newSrc = ctx.createBufferSource();
+  newSrc.buffer = loopBuffer;
+  newSrc.loop = true;
+  newSrc.connect(ctx.destination);
+  const startWhen = ctx.currentTime + 0.02;
+  newSrc.start(startWhen, phase);
+  if (currentSource) {
+    try { currentSource.stop(startWhen); } catch (_) {}
+  }
+  currentSource = newSrc;
+  loopStartTime = startWhen - phase;
+}
+
+function doUndo() {
+  if (state.undoStack.length === 0 || !loopBuffer) return;
+  const current = snapshotCurrent();
   state.redoStack.push(current);
   const prev = state.undoStack.pop();
-  workletNode.port.postMessage({ type: 'replaceBuffer', buffer: prev });
+  applyBufferSnapshot(prev);
   state.layers = Math.max(1, state.layers - 1);
   ui.layerCount.textContent = state.layers;
   ui.redoSw.disabled = false;
   if (state.undoStack.length === 0) ui.undoSw.disabled = true;
 }
-async function doRedo() {
-  if (state.redoStack.length === 0) return;
-  const current = await snapshotBuffer();
+function doRedo() {
+  if (state.redoStack.length === 0 || !loopBuffer) return;
+  const current = snapshotCurrent();
   state.undoStack.push(current);
   const next = state.redoStack.pop();
-  workletNode.port.postMessage({ type: 'replaceBuffer', buffer: next });
+  applyBufferSnapshot(next);
   state.layers++;
   ui.layerCount.textContent = state.layers;
   ui.undoSw.disabled = false;
   if (state.redoStack.length === 0) ui.redoSw.disabled = true;
 }
 
+// ─── UI helpers ─────────────────────────────────────────
 const ui = {};
 function $(id) { return document.getElementById(id); }
+function setStatus(klass, text) { ui.statusText.className = 'status-text ' + klass; ui.statusText.textContent = text; }
+function updateRing(position) { ui.ringProgress.setAttribute('stroke-dashoffset', 578 * (1 - position)); }
 
-function setStatus(klass, text) {
-  ui.statusText.className = 'status-text ' + klass;
-  ui.statusText.textContent = text;
-}
-
-function updateRing(position) {
-  ui.ringProgress.setAttribute('stroke-dashoffset', 578 * (1 - position));
+function animateRing(startTime, duration, totalBeats) {
+  // used during initial recording
+  function tick() {
+    if (state.appState !== 'recording') return;
+    const elapsed = ctx.currentTime - startTime;
+    const position = Math.min(1, elapsed / duration);
+    updateRing(position);
+    const beatIdx = Math.min(totalBeats - 1, Math.floor(position * totalBeats));
+    flashBeat(beatIdx, beatIdx % state.beatsPerBar === 0);
+    ui.barCounter.textContent = Math.floor(beatIdx / state.beatsPerBar) + 1;
+    if (position < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 }
 
 function buildBeatDots() {
@@ -983,7 +1037,6 @@ function flashBeat(beatIdx, isDownbeat) {
     if (isDownbeat) dots[dotIdx].classList.add('downbeat');
   }
 }
-
 function flashCountBeat(beatIdx) {
   const dots = ui.beatRow.children;
   for (const d of dots) d.classList.remove('on','downbeat');
@@ -992,10 +1045,7 @@ function flashCountBeat(beatIdx) {
     if (beatIdx === 0) dots[beatIdx].classList.add('downbeat');
   }
 }
-
-function clearBeats() {
-  for (const d of ui.beatRow.children) d.classList.remove('on','downbeat');
-}
+function clearBeats() { for (const d of ui.beatRow.children) d.classList.remove('on','downbeat'); }
 
 function refreshParams() {
   ui.bpmVal.textContent = state.bpm;
@@ -1038,16 +1088,30 @@ function wireUI() {
   ui.metSwitch.onclick = () => {
     state.metronomeInLoop = !state.metronomeInLoop;
     ui.metSwitch.classList.toggle('on', state.metronomeInLoop);
-    if (state.metronomeInLoop && state.appState !== 'idle') startMetronomeScheduler(0);
-    else if (!state.metronomeInLoop) stopMetronomeScheduler();
+    if (state.metronomeInLoop && state.appState === 'playing') {
+      // start cyclic scheduling aligned with current loop
+      startCyclicMetronome();
+    } else if (!state.metronomeInLoop) {
+      stopMetronomeScheduler();
+    }
   };
 
   ui.mainSw.onclick = async () => {
-    if (state.appState === 'idle') await runCountIn();
-    else if (state.appState === 'playing') await armOverdub();
-    else if (state.appState === 'overdubbing') endOverdub();
-    else if (state.appState === 'recording') clearLoop();
-    else if (state.appState === 'countin') {
+    if (state.appState === 'idle' && !loopBuffer) {
+      await runCountIn();
+    } else if (state.appState === 'idle' && loopBuffer) {
+      // RESUME from stop
+      startPlayback(ctx.currentTime + 0.02);
+      enterPlayingState();
+    } else if (state.appState === 'playing') {
+      await armOverdub();
+    } else if (state.appState === 'dubbing' || state.appState === 'dubArmed') {
+      endOverdub();
+    } else if (state.appState === 'recording') {
+      // abort first take
+      workletNode.port.postMessage({ type: 'reset' });
+      clearLoop();
+    } else if (state.appState === 'countin') {
       stopMetronomeScheduler();
       state.appState = 'idle';
       setStatus('idle', 'IDLE');
