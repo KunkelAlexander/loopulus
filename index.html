@@ -376,6 +376,46 @@
   .btn:disabled { opacity: 0.3; cursor: not-allowed; }
   .btn.danger:active { color: var(--led-red); border-color: var(--led-red); }
 
+  /* ── input meter ───────────────────────────────────────── */
+  .meter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0 4px;
+    padding: 0 2px;
+  }
+  .meter-lbl {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--ink-dim);
+  }
+  .meter {
+    flex: 1;
+    height: 8px;
+    background: #050505;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .meter-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg,
+      var(--led-green) 0%,
+      var(--led-green) 60%,
+      var(--led-amber) 80%,
+      var(--led-red) 100%);
+    transition: width 0.04s linear;
+  }
+  .meter-val {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-dim);
+    min-width: 40px;
+    text-align: right;
+  }
+
   /* ── start screen ──────────────────────────────────────── */
   .start-overlay {
     position: fixed; inset: 0;
@@ -496,6 +536,14 @@
     color: var(--ink-faint);
     text-align: center;
     text-transform: uppercase;
+    line-height: 1.8;
+    max-width: 440px;
+    width: 100%;
+  }
+  .footer #activeDevice {
+    color: var(--ink-dim);
+    word-break: break-word;
+    padding: 0 10px;
   }
 
   /* small screens */
@@ -618,6 +666,13 @@
     </button>
   </div>
 
+  <!-- input level meter (live diagnostic) -->
+  <div class="meter-row">
+    <span class="meter-lbl">IN</span>
+    <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+    <span class="meter-val" id="meterVal">−∞</span>
+  </div>
+
   <!-- secondary -->
   <div class="secondary">
     <button class="btn" id="ioBtn">I/O</button>
@@ -628,7 +683,10 @@
   <div class="screws-bottom"><span></span><span></span></div>
 </div>
 
-<div class="footer">USE HEADPHONES · DISABLE NOISE SUPPRESSION ON YOUR DEVICE IF NEEDED</div>
+<div class="footer">
+  <div id="activeDevice">IN: —</div>
+  <div>USE HEADPHONES · DISABLE NOISE SUPPRESSION ON YOUR DEVICE IF NEEDED</div>
+</div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
@@ -648,6 +706,9 @@ class LooperProcessor extends AudioWorkletProcessor {
     this.mode = 'idle';          // 'idle' | 'recording' | 'playing' | 'overdubbing'
     this.lastBeat = -1;
     this.beatsPerLoop = 16;      // bars * 4
+    this.peakIn = 0;             // peak input absolute value since last report
+    this.framesSinceReport = 0;  // for throttled level reporting
+    this.reportInterval = 2048;  // ~43ms at 48kHz
 
     this.port.onmessage = (e) => {
       const m = e.data;
@@ -681,6 +742,20 @@ class LooperProcessor extends AudioWorkletProcessor {
     const outR = output[1] || output[0];
     const inCh = (input && input[0]) ? input[0] : null;
     const frames = outL.length;
+
+    // ── always sample input level so the meter works even when idle ──
+    if (inCh) {
+      for (let i = 0; i < frames; i++) {
+        const a = inCh[i] < 0 ? -inCh[i] : inCh[i];
+        if (a > this.peakIn) this.peakIn = a;
+      }
+    }
+    this.framesSinceReport += frames;
+    if (this.framesSinceReport >= this.reportInterval) {
+      this.port.postMessage({ type: 'level', peak: this.peakIn });
+      this.peakIn *= 0.7;  // decay so meter falls naturally
+      this.framesSinceReport = 0;
+    }
 
     if (!this.buffer || this.mode === 'idle') {
       for (let i = 0; i < frames; i++) { outL[i] = 0; if (outR !== outL) outR[i] = 0; }
@@ -748,10 +823,24 @@ let countInResolve = null;
 let chosenInputId = null;
 let chosenOutputId = null;
 let workletReady = false;
+let activeInputLabel = '';
 
 // Stage 1: prompt for mic permission so device labels become visible.
 // We immediately stop the resulting stream — we only wanted permission.
 async function requestMicPermission() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    const loc = window.location;
+    const isSecure = window.isSecureContext;
+    let hint = '';
+    if (!isSecure) {
+      hint = ' This page must be served over HTTPS (or localhost) for microphone access. ' +
+             'You are currently on: ' + loc.protocol + '//' + loc.host +
+             '. Try deploying to GitHub Pages, or use a local HTTPS server.';
+    } else {
+      hint = ' Your browser does not expose the Media Devices API in this context.';
+    }
+    throw new Error('Audio capture not available.' + hint);
+  }
   let probe;
   try {
     probe = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -790,27 +879,79 @@ async function connectAudio(inputDeviceId, outputDeviceId) {
     workletReady = true;
   }
 
-  // open mic on the chosen input device
-  const audioConstraints = {
+  // ── open mic on the chosen input device, with progressive fallback ──
+  // On desktop Chrome, full constraints work and we want them (no AGC/AEC/NS).
+  // On Android, specifying deviceId or disabling these effects can silently
+  // route capture through the built-in mic instead of a USB interface.
+  // Strategy: try strict first; verify; fall back to bare {audio:true} if needed.
+
+  let attemptLog = [];
+  let fallbackUsed = false;
+
+  // attempt 1: strict — exact device, all processing disabled
+  const strictConstraints = {
     echoCancellation: false,
     noiseSuppression: false,
     autoGainControl: false,
     channelCount: 1,
   };
-  if (inputDeviceId) audioConstraints.deviceId = { exact: inputDeviceId };
+  if (inputDeviceId) strictConstraints.deviceId = { exact: inputDeviceId };
 
   try {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: strictConstraints, video: false });
+    attemptLog.push('strict: ok');
   } catch (err) {
-    // fall back to default if exact match failed (device may have been unplugged)
-    if (inputDeviceId) {
-      delete audioConstraints.deviceId;
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
-    } else {
-      throw err;
+    attemptLog.push('strict: threw ' + err.name);
+    micStream = null;
+  }
+
+  // verify: did we actually get the requested device?
+  function streamMatchesRequest(stream, requestedId) {
+    if (!stream) return false;
+    if (!requestedId) return true;  // user didn't pick a specific device
+    const t = stream.getAudioTracks()[0];
+    if (!t) return false;
+    const s = t.getSettings();
+    return s && s.deviceId === requestedId;
+  }
+
+  if (!streamMatchesRequest(micStream, inputDeviceId)) {
+    // tear down what we got (if anything) before trying again
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+
+    // attempt 2: bare {audio: true} — lets the OS route capture.
+    // This is the path the "working" Android app uses.
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      attemptLog.push('bare: ok');
+      fallbackUsed = true;
+    } catch (err) {
+      attemptLog.push('bare: threw ' + err.name);
+      throw new Error('Could not open audio input: ' + err.message);
     }
   }
+
   chosenInputId = inputDeviceId || null;
+
+  // ── diagnostics: what did the browser ACTUALLY give us? ──
+  const track = micStream.getAudioTracks()[0];
+  const settings = track ? track.getSettings() : {};
+  console.log('[LOOP/01] Requested input deviceId:', inputDeviceId || '(none)');
+  console.log('[LOOP/01] Attempts:', attemptLog.join(' → '));
+  console.log('[LOOP/01] Track settings:', settings);
+  console.log('[LOOP/01] Track label:', track ? track.label : '(none)');
+  console.log('[LOOP/01] Fallback used:', fallbackUsed);
+
+  // surface device + fallback note to UI
+  try {
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    const matched = devs.find(d => d.deviceId === settings.deviceId);
+    activeInputLabel = matched ? matched.label : (track ? track.label : 'unknown');
+  } catch (_) { activeInputLabel = track ? track.label : 'unknown'; }
+  if (ui && ui.activeDevice) {
+    const suffix = fallbackUsed ? ' · SYSTEM ROUTING' : '';
+    ui.activeDevice.textContent = 'IN: ' + (activeInputLabel || 'unknown') + suffix;
+  }
 
   micSource = ctx.createMediaStreamSource(micStream);
 
@@ -1043,10 +1184,24 @@ function attachWorkletMessages() {
       ui.barCounter.textContent = bar;
     } else if (m.type === 'loop') {
       loopWrapWithOverdub();
+    } else if (m.type === 'level') {
+      updateMeter(m.peak);
     } else if (m.type === 'buffer') {
       // handled by snapshotBuffer wrapper
     }
   };
+}
+
+function updateMeter(peak) {
+  // peak is 0..1 (or higher if clipping); map to a dB scale for display
+  const pct = Math.min(100, peak * 100);
+  ui.meterFill.style.width = pct + '%';
+  if (peak < 0.0001) {
+    ui.meterVal.textContent = '−∞';
+  } else {
+    const db = 20 * Math.log10(peak);
+    ui.meterVal.textContent = db.toFixed(0) + ' dB';
+  }
 }
 
 // ─── Stop & clear ────────────────────────────────────────────
@@ -1178,7 +1333,8 @@ function cacheUI() {
    'mainSw','mainLabel','undoSw','redoSw','stopBtn','clearBtn','ioBtn',
    'startOverlay','startBtn','startError',
    'stepPower','stepDevices','inputSelect','outputSelect','outputNote',
-   'rescanBtn','confirmDevicesBtn','deviceError']
+   'rescanBtn','confirmDevicesBtn','deviceError',
+   'meterFill','meterVal','activeDevice']
     .forEach(id => ui[id] = $(id));
 }
 
