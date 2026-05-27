@@ -386,7 +386,18 @@
   <div>Loopulus v2.1 · BUFFER PLAYBACK · USE HEADPHONES</div>
 </div>
 
+<div id="log" style="width:100%;max-width:440px;margin-top:12px;font-family:monospace;font-size:10px;color:#6b6960;word-break:break-all;white-space:pre-wrap;"></div>
+
 <script>
+(function() {
+  const _log = console.log.bind(console);
+  console.log = (...args) => {
+    _log(...args);
+    const el = document.getElementById('log');
+    if (el) el.textContent += args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') + '\n';
+  };
+})();
+
 /* ═══════════════════════════════════════════════════════════════
    Loopulus
 
@@ -552,9 +563,10 @@ async function initAudio() {
   const settings = track ? track.getSettings() : {};
   const nativeSampleRate = settings.sampleRate || undefined;
 
-  // 'playback' prioritises stability (larger buffers) over latency.
+  // 'interactive' requests smaller, more frequent buffers which tends to give
+  // cleaner USB audio input on Android; 'playback' optimises output, not input.
   // sampleRate matches the interface so the browser skips resampling entirely.
-  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback', sampleRate: nativeSampleRate });
+  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive', sampleRate: nativeSampleRate });
   console.log('[Loopulus] baseLatency:', ctx.baseLatency, 'outputLatency:', ctx.outputLatency, 'sampleRate:', ctx.sampleRate);
   console.log('[Loopulus] Track label:', track ? track.label : '(none)');
   console.log('[Loopulus] Track settings:', settings);
