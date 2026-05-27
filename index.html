@@ -534,13 +534,10 @@ async function initAudio() {
     throw new Error('Audio capture not available.' + hint);
   }
 
-  // 'playback' tells the browser we prioritize stability over latency.
-  // On Android this typically gives bigger buffers and far fewer dropouts.
-  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
-
+  // Get the mic stream first so we can match the AudioContext sample rate to the
+  // interface's native rate — mismatched rates force resampling which causes clicks.
   try {
     micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    // Disable voice-call DSP after device selection so Android doesn't swap to a different input.
     const track = micStream.getAudioTracks()[0];
     if (track) {
       try {
@@ -553,6 +550,11 @@ async function initAudio() {
 
   const track = micStream.getAudioTracks()[0];
   const settings = track ? track.getSettings() : {};
+  const nativeSampleRate = settings.sampleRate || undefined;
+
+  // 'playback' prioritises stability (larger buffers) over latency.
+  // sampleRate matches the interface so the browser skips resampling entirely.
+  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback', sampleRate: nativeSampleRate });
   console.log('[Loopulus] baseLatency:', ctx.baseLatency, 'outputLatency:', ctx.outputLatency, 'sampleRate:', ctx.sampleRate);
   console.log('[Loopulus] Track label:', track ? track.label : '(none)');
   console.log('[Loopulus] Track settings:', settings);
