@@ -4,14 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0a0a" />
-<title>LOOP/01 — Guitar Looper</title>
+<title>LOOP/02 — Guitar Looper</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Major+Mono+Display&display=swap" rel="stylesheet">
 <style>
-  /* ─────────────────────────────────────────────────────────────
-     LOOP/01 — pedal-inspired dark UI
-     ───────────────────────────────────────────────────────────── */
   :root {
     --bg: #0a0a0a;
     --panel: #141414;
@@ -45,7 +42,6 @@
     -webkit-user-select: none;
   }
 
-  /* ── chassis ─────────────────────────────────────────────── */
   .pedal {
     width: 100%;
     max-width: 440px;
@@ -76,7 +72,6 @@
     box-shadow: inset 0 0 2px #000;
   }
 
-  /* ── header ─────────────────────────────────────────────── */
   .header {
     display: flex;
     justify-content: space-between;
@@ -99,7 +94,6 @@
     text-transform: uppercase;
   }
 
-  /* ── display ────────────────────────────────────────────── */
   .display {
     background: #050505;
     border: 1px solid #000;
@@ -120,7 +114,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-family: var(--mono);
   }
   .status-text {
     font-family: var(--display);
@@ -130,21 +123,17 @@
     text-shadow: 0 0 10px rgba(255,176,32,0.4);
     transition: color 0.15s, text-shadow 0.15s;
   }
-  .status-text.rec { color: var(--led-red); text-shadow: 0 0 12px rgba(255,59,48,0.6); }
+  .status-text.rec  { color: var(--led-red);   text-shadow: 0 0 12px rgba(255,59,48,0.6); }
   .status-text.play { color: var(--led-green); text-shadow: 0 0 12px rgba(32,217,122,0.5); }
-  .status-text.dub { color: var(--led-blue); text-shadow: 0 0 12px rgba(76,194,255,0.5); }
-  .status-text.cnt { color: var(--led-amber); }
+  .status-text.dub  { color: var(--led-blue);  text-shadow: 0 0 12px rgba(76,194,255,0.5); }
 
   .counter {
-    font-family: var(--mono);
     font-size: 14px;
-    font-weight: 500;
     color: var(--ink-dim);
     letter-spacing: 0.1em;
   }
   .counter b { color: var(--ink); font-weight: 500; }
 
-  /* progress ring */
   .ring-wrap {
     margin: 14px auto 6px;
     position: relative;
@@ -181,7 +170,6 @@
     text-transform: uppercase;
   }
 
-  /* beat dots */
   .beats {
     display: flex;
     justify-content: center;
@@ -206,7 +194,6 @@
     box-shadow: 0 0 14px var(--led-red), 0 0 4px var(--led-red);
   }
 
-  /* ── controls grid ─────────────────────────────────────── */
   .knobs {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -229,9 +216,7 @@
     text-transform: uppercase;
   }
   .knob .val {
-    font-family: var(--mono);
     font-size: 18px;
-    font-weight: 500;
     color: var(--ink);
     min-width: 50px;
     text-align: right;
@@ -251,12 +236,10 @@
     border-radius: 4px;
     cursor: pointer;
     line-height: 1;
-    transition: background 0.1s;
   }
   .knob button:active { background: #2a2a2a; }
   .knob button:disabled { opacity: 0.3; cursor: not-allowed; }
 
-  /* metronome toggle */
   .met-toggle {
     grid-column: span 2;
     display: flex;
@@ -295,7 +278,6 @@
   .switch.on { background: rgba(32,217,122,0.18); border-color: var(--led-green); }
   .switch.on::after { transform: translateX(28px); background: linear-gradient(180deg, var(--led-green), #1aa860); box-shadow: 0 0 12px rgba(32,217,122,0.6); }
 
-  /* ── footswitches ──────────────────────────────────────── */
   .switches {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -318,7 +300,6 @@
     font-size: 11px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    transition: transform 0.05s, box-shadow 0.15s;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.06),
       inset 0 -2px 4px rgba(0,0,0,0.4),
@@ -326,7 +307,7 @@
       0 6px 12px rgba(0,0,0,0.5);
     position: relative;
   }
-  .fsw:active, .fsw.held {
+  .fsw:active {
     transform: translateY(3px);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.04),
@@ -342,41 +323,14 @@
     box-shadow: inset 0 1px 1px rgba(0,0,0,0.6);
     transition: all 0.12s;
   }
-  .fsw.armed .led   { background: var(--led-amber); box-shadow: 0 0 8px var(--led-amber); }
-  .fsw.rec .led     { background: var(--led-red);   box-shadow: 0 0 10px var(--led-red); animation: pulse 0.6s infinite; }
-  .fsw.play .led    { background: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
-  .fsw.dub .led     { background: var(--led-blue);  box-shadow: 0 0 10px var(--led-blue); animation: pulse 0.6s infinite; }
+  .fsw.armed .led { background: var(--led-amber); box-shadow: 0 0 8px var(--led-amber); }
+  .fsw.rec .led   { background: var(--led-red);   box-shadow: 0 0 10px var(--led-red); animation: pulse 0.6s infinite; }
+  .fsw.play .led  { background: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
+  .fsw.dub .led   { background: var(--led-blue);  box-shadow: 0 0 10px var(--led-blue); animation: pulse 0.6s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
   .fsw-main { grid-column: span 2; aspect-ratio: 3.2 / 1; }
-  .fsw-main .label-row { display: flex; gap: 24px; align-items: center; }
-  .fsw-main .label-row span { font-size: 11px; letter-spacing: 0.2em; }
 
-  /* ── secondary controls ────────────────────────────────── */
-  .secondary {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-top: 12px;
-  }
-  .btn {
-    background: #141414;
-    border: 1px solid var(--rule);
-    color: var(--ink-dim);
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    padding: 12px 0;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.1s;
-  }
-  .btn:active { background: #1f1f1f; color: var(--ink); }
-  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .btn.danger:active { color: var(--led-red); border-color: var(--led-red); }
-
-  /* ── input meter ───────────────────────────────────────── */
   .meter-row {
     display: flex;
     align-items: center;
@@ -396,7 +350,6 @@
     border: 1px solid var(--rule);
     border-radius: 4px;
     overflow: hidden;
-    position: relative;
   }
   .meter-fill {
     height: 100%;
@@ -409,14 +362,34 @@
     transition: width 0.04s linear;
   }
   .meter-val {
-    font-family: var(--mono);
     font-size: 10px;
     color: var(--ink-dim);
     min-width: 40px;
     text-align: right;
   }
 
-  /* ── start screen ──────────────────────────────────────── */
+  .secondary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .btn {
+    background: #141414;
+    border: 1px solid var(--rule);
+    color: var(--ink-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 12px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .btn:active { background: #1f1f1f; color: var(--ink); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn.danger:active { color: var(--led-red); border-color: var(--led-red); }
+
   .start-overlay {
     position: fixed; inset: 0;
     background: rgba(10,10,10,0.96);
@@ -454,7 +427,6 @@
     border-radius: 8px;
     cursor: pointer;
     box-shadow: 0 0 30px rgba(255,59,48,0.4);
-    transition: transform 0.1s;
   }
   .start-btn:active { transform: scale(0.96); }
   .start-error {
@@ -465,70 +437,6 @@
     line-height: 1.5;
   }
 
-  .start-step { display: flex; flex-direction: column; align-items: center; }
-  .start-step.hidden { display: none; }
-
-  .device-row {
-    width: 100%;
-    max-width: 340px;
-    margin: 0 0 16px;
-    text-align: left;
-  }
-  .device-label {
-    display: block;
-    font-size: 9px;
-    letter-spacing: 0.3em;
-    color: var(--ink-dim);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .device-select {
-    width: 100%;
-    background: #050505;
-    border: 1px solid var(--rule);
-    color: var(--ink);
-    font-family: var(--mono);
-    font-size: 12px;
-    padding: 12px 14px;
-    border-radius: 6px;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, var(--ink-dim) 50%),
-                      linear-gradient(135deg, var(--ink-dim) 50%, transparent 50%);
-    background-position: calc(100% - 18px) center, calc(100% - 12px) center;
-    background-size: 6px 6px, 6px 6px;
-    background-repeat: no-repeat;
-    padding-right: 30px;
-  }
-  .device-select:disabled { opacity: 0.4; }
-  .device-note {
-    margin-top: 6px;
-    font-size: 9px;
-    color: var(--ink-dim);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .device-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 8px;
-    align-items: center;
-  }
-  .btn-secondary {
-    background: transparent;
-    border: 1px solid var(--rule);
-    color: var(--ink-dim);
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    padding: 12px 18px;
-    border-radius: 6px;
-    cursor: pointer;
-    text-transform: uppercase;
-  }
-  .btn-secondary:active { background: #141414; color: var(--ink); }
-
-  /* ── footer notes ──────────────────────────────────────── */
   .footer {
     margin-top: 16px;
     font-size: 9px;
@@ -546,7 +454,6 @@
     padding: 0 10px;
   }
 
-  /* small screens */
   @media (max-width: 380px) {
     .ring-wrap { width: 150px; height: 150px; }
     .layer-count { font-size: 32px; }
@@ -556,50 +463,21 @@
 </head>
 <body>
 
-<!-- ── start overlay step 1: power on (required to unlock audio on mobile) ── -->
 <div class="start-overlay" id="startOverlay">
-  <div class="start-step" id="stepPower">
-    <h1>LOOP<span class="slash">/</span>01</h1>
-    <p>
-      Connect your guitar amp's output to your phone, plug headphones into the amp's monitor, and tap below to grant microphone access. Use headphones to prevent feedback.
-    </p>
-    <button class="start-btn" id="startBtn">POWER ON</button>
-    <div class="start-error" id="startError"></div>
-  </div>
-
-  <!-- step 2: device picker -->
-  <div class="start-step hidden" id="stepDevices">
-    <h1>I<span class="slash">/</span>O</h1>
-    <p>Choose which audio interface to use.</p>
-
-    <div class="device-row">
-      <label class="device-label">INPUT</label>
-      <select class="device-select" id="inputSelect"></select>
-    </div>
-
-    <div class="device-row">
-      <label class="device-label">OUTPUT</label>
-      <select class="device-select" id="outputSelect"></select>
-      <div class="device-note" id="outputNote"></div>
-    </div>
-
-    <div class="device-actions">
-      <button class="btn-secondary" id="rescanBtn">RESCAN</button>
-      <button class="start-btn" id="confirmDevicesBtn">CONFIRM</button>
-    </div>
-    <div class="start-error" id="deviceError"></div>
-  </div>
+  <h1>LOOP<span class="slash">/</span>02</h1>
+  <p>
+    Connect your guitar amp's output to your phone, plug headphones into the amp's monitor, and tap below to grant microphone access. Use headphones to prevent feedback.
+  </p>
+  <button class="start-btn" id="startBtn">POWER ON</button>
+  <div class="start-error" id="startError"></div>
 </div>
 
-<!-- ── main pedal ── -->
-<div class="pedal" id="pedal">
-
+<div class="pedal">
   <div class="header">
-    <div class="brand">LOOP<span class="slash">/</span>01</div>
-    <div class="model">v1 · web · single-loop</div>
+    <div class="brand">LOOP<span class="slash">/</span>02</div>
+    <div class="model">v2 · bare · single-loop</div>
   </div>
 
-  <!-- display -->
   <div class="display">
     <div class="display-row">
       <div class="status-text" id="statusText">IDLE</div>
@@ -618,12 +496,9 @@
       </div>
     </div>
 
-    <div class="beats" id="beatRow">
-      <!-- beat dots populated by JS -->
-    </div>
+    <div class="beats" id="beatRow"></div>
   </div>
 
-  <!-- knobs / params -->
   <div class="knobs">
     <div class="knob">
       <span class="lbl">BPM</span>
@@ -648,13 +523,10 @@
     </div>
   </div>
 
-  <!-- footswitches -->
   <div class="switches">
     <button class="fsw fsw-main" id="mainSw">
       <div class="led"></div>
-      <div class="label-row">
-        <span id="mainLabel">START</span>
-      </div>
+      <span id="mainLabel">START</span>
     </button>
     <button class="fsw" id="undoSw" disabled>
       <div class="led"></div>
@@ -666,16 +538,13 @@
     </button>
   </div>
 
-  <!-- input level meter (live diagnostic) -->
   <div class="meter-row">
     <span class="meter-lbl">IN</span>
     <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
     <span class="meter-val" id="meterVal">−∞</span>
   </div>
 
-  <!-- secondary -->
   <div class="secondary">
-    <button class="btn" id="ioBtn">I/O</button>
     <button class="btn" id="stopBtn" disabled>STOP</button>
     <button class="btn danger" id="clearBtn" disabled>CLEAR</button>
   </div>
@@ -685,30 +554,34 @@
 
 <div class="footer">
   <div id="activeDevice">IN: —</div>
-  <div>USE HEADPHONES · DISABLE NOISE SUPPRESSION ON YOUR DEVICE IF NEEDED</div>
+  <div>v2 · BARE getUserMedia · OS-ROUTED · USE HEADPHONES</div>
 </div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   LOOP/01 — Guitar Looper
-   Single-loop, unlimited overdubs, count-in, quantized to bar.
-   AudioWorklet handles the per-sample mixing on the audio thread.
+   LOOP/02 — Guitar Looper (simplified audio capture)
+
+   Capture: getUserMedia({audio: true}) — no constraints.
+   Mirrors the approach of a reference Android web app that works
+   reliably with USB audio interfaces. The OS picks the input.
+
+   Everything else (count-in, bar-quantized record, overdubs,
+   undo/redo, metronome) is unchanged from v1.
    ═══════════════════════════════════════════════════════════════ */
 
-// ─── AudioWorklet processor source (loaded as Blob URL) ────────
 const workletSrc = `
 class LooperProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.buffer = null;          // Float32Array, the loop
-    this.bufferLength = 0;       // samples in one loop
-    this.playhead = 0;           // current playback position
-    this.mode = 'idle';          // 'idle' | 'recording' | 'playing' | 'overdubbing'
+    this.buffer = null;
+    this.bufferLength = 0;
+    this.playhead = 0;
+    this.mode = 'idle';
     this.lastBeat = -1;
-    this.beatsPerLoop = 16;      // bars * 4
-    this.peakIn = 0;             // peak input absolute value since last report
-    this.framesSinceReport = 0;  // for throttled level reporting
-    this.reportInterval = 2048;  // ~43ms at 48kHz
+    this.beatsPerLoop = 16;
+    this.peakIn = 0;
+    this.framesSinceReport = 0;
+    this.reportInterval = 2048;
 
     this.port.onmessage = (e) => {
       const m = e.data;
@@ -720,12 +593,10 @@ class LooperProcessor extends AudioWorkletProcessor {
         this.lastBeat = -1;
       } else if (m.type === 'mode') {
         this.mode = m.mode;
-        if (m.mode === 'recording' || m.mode === 'playing') {
-          // reset playhead on transitions that align to loop start
-          if (m.resetPlayhead) { this.playhead = 0; this.lastBeat = -1; }
+        if ((m.mode === 'recording' || m.mode === 'playing') && m.resetPlayhead) {
+          this.playhead = 0; this.lastBeat = -1;
         }
       } else if (m.type === 'replaceBuffer') {
-        // for undo/redo
         this.buffer = new Float32Array(m.buffer);
       } else if (m.type === 'getBuffer') {
         const copy = new Float32Array(this.buffer).buffer;
@@ -743,7 +614,6 @@ class LooperProcessor extends AudioWorkletProcessor {
     const inCh = (input && input[0]) ? input[0] : null;
     const frames = outL.length;
 
-    // ── always sample input level so the meter works even when idle ──
     if (inCh) {
       for (let i = 0; i < frames; i++) {
         const a = inCh[i] < 0 ? -inCh[i] : inCh[i];
@@ -753,7 +623,7 @@ class LooperProcessor extends AudioWorkletProcessor {
     this.framesSinceReport += frames;
     if (this.framesSinceReport >= this.reportInterval) {
       this.port.postMessage({ type: 'level', peak: this.peakIn });
-      this.peakIn *= 0.7;  // decay so meter falls naturally
+      this.peakIn *= 0.7;
       this.framesSinceReport = 0;
     }
 
@@ -767,13 +637,11 @@ class LooperProcessor extends AudioWorkletProcessor {
       let outSample = 0;
 
       if (this.mode === 'recording') {
-        // first pass: write input, no playback of existing buffer
         this.buffer[this.playhead] = inSample;
-        outSample = 0; // monitoring handled by amp directly
+        outSample = 0;
       } else if (this.mode === 'playing') {
         outSample = this.buffer[this.playhead];
       } else if (this.mode === 'overdubbing') {
-        // mix new input into existing buffer, output the existing buffer
         outSample = this.buffer[this.playhead];
         this.buffer[this.playhead] = this.buffer[this.playhead] + inSample;
       }
@@ -787,218 +655,106 @@ class LooperProcessor extends AudioWorkletProcessor {
         this.port.postMessage({ type: 'loop' });
       }
 
-      // beat reporting
       const beatIdx = Math.floor((this.playhead / this.bufferLength) * this.beatsPerLoop);
       if (beatIdx !== this.lastBeat) {
         this.lastBeat = beatIdx;
         this.port.postMessage({ type: 'beat', beat: beatIdx, position: this.playhead / this.bufferLength });
       }
     }
-
     return true;
   }
 }
 registerProcessor('looper-processor', LooperProcessor);
 `;
 
-// ─── State ────────────────────────────────────────────────────
 const state = {
   bpm: 100,
   bars: 4,
   beatsPerBar: 4,
   metronomeInLoop: false,
   layers: 0,
-  appState: 'idle',     // 'idle' | 'countin' | 'recording' | 'playing' | 'overdubbing'
+  appState: 'idle',
   undoStack: [],
   redoStack: [],
-  countInBeat: 0,
 };
 
-// ─── Audio engine ────────────────────────────────────────────
-let ctx, micStream, micSource, workletNode, metronomeGain, outputGain;
+let ctx, micStream, micSource, workletNode, metronomeGain;
 let metronomeNextTime = 0;
 let metronomeBeatCount = 0;
 let metronomeTimerId = null;
-let countInResolve = null;
-let chosenInputId = null;
-let chosenOutputId = null;
-let workletReady = false;
-let activeInputLabel = '';
+let pendingOverdub = false;
 
-// Stage 1: prompt for mic permission so device labels become visible.
-// We immediately stop the resulting stream — we only wanted permission.
-async function requestMicPermission() {
+async function initAudio() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    const loc = window.location;
     const isSecure = window.isSecureContext;
-    let hint = '';
-    if (!isSecure) {
-      hint = ' This page must be served over HTTPS (or localhost) for microphone access. ' +
-             'You are currently on: ' + loc.protocol + '//' + loc.host +
-             '. Try deploying to GitHub Pages, or use a local HTTPS server.';
-    } else {
-      hint = ' Your browser does not expose the Media Devices API in this context.';
-    }
+    const loc = window.location;
+    const hint = isSecure
+      ? ' Your browser does not expose the Media Devices API.'
+      : ' This page must be served over HTTPS (or localhost). You are on ' +
+        loc.protocol + '//' + loc.host + '.';
     throw new Error('Audio capture not available.' + hint);
   }
-  let probe;
+
+  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+
+  // bare request — no deviceId, no echoCancellation toggles, no channelCount.
+  // Lets Android's system audio routing pick the active input.
   try {
-    probe = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
   } catch (err) {
-    throw new Error('Microphone access denied. Please grant permission and try again. (' + err.message + ')');
-  }
-  probe.getTracks().forEach(t => t.stop());
-}
-
-async function listDevices() {
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  return {
-    inputs:  devices.filter(d => d.kind === 'audioinput'),
-    outputs: devices.filter(d => d.kind === 'audiooutput'),
-  };
-}
-
-// Stage 2: build (or rebuild) the audio graph using chosen devices.
-async function connectAudio(inputDeviceId, outputDeviceId) {
-  // tear down any previous graph
-  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
-  if (micSource) { try { micSource.disconnect(); } catch(_){} micSource = null; }
-
-  // create context once (re-creating it on every device change has cost
-  // and would also invalidate the audio worklet registration)
-  if (!ctx) {
-    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
-  }
-  if (ctx.state === 'suspended') await ctx.resume();
-
-  // load the worklet module once
-  if (!workletReady) {
-    const blob = new Blob([workletSrc], { type: 'application/javascript' });
-    const url = URL.createObjectURL(blob);
-    await ctx.audioWorklet.addModule(url);
-    workletReady = true;
+    throw new Error('Microphone access denied: ' + err.message);
   }
 
-  // ── open mic on the chosen input device, with progressive fallback ──
-  // On desktop Chrome, full constraints work and we want them (no AGC/AEC/NS).
-  // On Android, specifying deviceId or disabling these effects can silently
-  // route capture through the built-in mic instead of a USB interface.
-  // Strategy: try strict first; verify; fall back to bare {audio:true} if needed.
-
-  let attemptLog = [];
-  let fallbackUsed = false;
-
-  // attempt 1: strict — exact device, all processing disabled
-  const strictConstraints = {
-    echoCancellation: false,
-    noiseSuppression: false,
-    autoGainControl: false,
-    channelCount: 1,
-  };
-  if (inputDeviceId) strictConstraints.deviceId = { exact: inputDeviceId };
-
-  try {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: strictConstraints, video: false });
-    attemptLog.push('strict: ok');
-  } catch (err) {
-    attemptLog.push('strict: threw ' + err.name);
-    micStream = null;
-  }
-
-  // verify: did we actually get the requested device?
-  function streamMatchesRequest(stream, requestedId) {
-    if (!stream) return false;
-    if (!requestedId) return true;  // user didn't pick a specific device
-    const t = stream.getAudioTracks()[0];
-    if (!t) return false;
-    const s = t.getSettings();
-    return s && s.deviceId === requestedId;
-  }
-
-  if (!streamMatchesRequest(micStream, inputDeviceId)) {
-    // tear down what we got (if anything) before trying again
-    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
-
-    // attempt 2: bare {audio: true} — lets the OS route capture.
-    // This is the path the "working" Android app uses.
-    try {
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      attemptLog.push('bare: ok');
-      fallbackUsed = true;
-    } catch (err) {
-      attemptLog.push('bare: threw ' + err.name);
-      throw new Error('Could not open audio input: ' + err.message);
-    }
-  }
-
-  chosenInputId = inputDeviceId || null;
-
-  // ── diagnostics: what did the browser ACTUALLY give us? ──
   const track = micStream.getAudioTracks()[0];
   const settings = track ? track.getSettings() : {};
-  console.log('[LOOP/01] Requested input deviceId:', inputDeviceId || '(none)');
-  console.log('[LOOP/01] Attempts:', attemptLog.join(' → '));
-  console.log('[LOOP/01] Track settings:', settings);
-  console.log('[LOOP/01] Track label:', track ? track.label : '(none)');
-  console.log('[LOOP/01] Fallback used:', fallbackUsed);
+  console.log('[LOOP/02] Track label:', track ? track.label : '(none)');
+  console.log('[LOOP/02] Track settings:', settings);
+  ui.activeDevice.textContent = 'IN: ' + (track && track.label ? track.label : 'system default');
 
-  // surface device + fallback note to UI
-  try {
-    const devs = await navigator.mediaDevices.enumerateDevices();
-    const matched = devs.find(d => d.deviceId === settings.deviceId);
-    activeInputLabel = matched ? matched.label : (track ? track.label : 'unknown');
-  } catch (_) { activeInputLabel = track ? track.label : 'unknown'; }
-  if (ui && ui.activeDevice) {
-    const suffix = fallbackUsed ? ' · SYSTEM ROUTING' : '';
-    ui.activeDevice.textContent = 'IN: ' + (activeInputLabel || 'unknown') + suffix;
-  }
+  const blob = new Blob([workletSrc], { type: 'application/javascript' });
+  const url = URL.createObjectURL(blob);
+  await ctx.audioWorklet.addModule(url);
 
   micSource = ctx.createMediaStreamSource(micStream);
+  workletNode = new AudioWorkletNode(ctx, 'looper-processor', {
+    numberOfInputs: 1,
+    numberOfOutputs: 1,
+    outputChannelCount: [2],
+    channelCount: 1,
+  });
 
-  // create the worklet node once, reuse on later device swaps
-  if (!workletNode) {
-    workletNode = new AudioWorkletNode(ctx, 'looper-processor', {
-      numberOfInputs: 1,
-      numberOfOutputs: 1,
-      outputChannelCount: [2],
-      channelCount: 1,
-    });
-  }
   micSource.connect(workletNode);
+  workletNode.connect(ctx.destination);
 
-  // output bus: worklet + metronome → outputGain → destination
-  if (!outputGain) {
-    outputGain = ctx.createGain();
-    outputGain.gain.value = 1.0;
-    outputGain.connect(ctx.destination);
-    workletNode.connect(outputGain);
-  }
-  if (!metronomeGain) {
-    metronomeGain = ctx.createGain();
-    metronomeGain.gain.value = 0.5;
-    metronomeGain.connect(outputGain);
-  }
+  metronomeGain = ctx.createGain();
+  metronomeGain.gain.value = 0.5;
+  metronomeGain.connect(ctx.destination);
 
-  // route output to selected sink if supported
-  await applyOutputDevice(outputDeviceId);
+  attachWorkletMessages();
 }
 
-async function applyOutputDevice(outputDeviceId) {
-  chosenOutputId = outputDeviceId || null;
-  if (!outputDeviceId) return;
-  // setSinkId on AudioContext: supported in recent Chrome
-  if (ctx && typeof ctx.setSinkId === 'function') {
-    try { await ctx.setSinkId(outputDeviceId); } catch (err) { console.warn('setSinkId failed', err); }
-  }
+function attachWorkletMessages() {
+  workletNode.port.onmessage = (e) => {
+    const m = e.data;
+    if (m.type === 'beat') {
+      updateRing(m.position);
+      const localBeat = m.beat % (state.bars * state.beatsPerBar);
+      flashBeat(localBeat, localBeat % state.beatsPerBar === 0);
+      const bar = Math.floor(localBeat / state.beatsPerBar) + 1;
+      ui.barCounter.textContent = bar;
+    } else if (m.type === 'loop') {
+      loopWrapWithOverdub();
+    } else if (m.type === 'level') {
+      updateMeter(m.peak);
+    }
+  };
 }
 
-function outputSelectionSupported() {
-  return !!(ctx && typeof ctx.setSinkId === 'function')
-      // probe before ctx exists: check on a temp context-like — fall back to true on Chrome
-      || (typeof AudioContext !== 'undefined' && 'setSinkId' in AudioContext.prototype);
+function updateMeter(peak) {
+  ui.meterFill.style.width = Math.min(100, peak * 100) + '%';
+  ui.meterVal.textContent = peak < 0.0001 ? '−∞' : (20 * Math.log10(peak)).toFixed(0) + ' dB';
 }
 
-// ─── Metronome (Web Audio scheduled clicks) ─────────────────
 function clickAt(time, accent) {
   const osc = ctx.createOscillator();
   const env = ctx.createGain();
@@ -1031,41 +787,27 @@ function stopMetronomeScheduler() {
   if (metronomeTimerId) { clearInterval(metronomeTimerId); metronomeTimerId = null; }
 }
 
-// ─── Count-in then start recording ───────────────────────────
 async function runCountIn() {
-  setStatus('countin', 'COUNT-IN');
+  setStatus('cnt', 'COUNT-IN');
   state.appState = 'countin';
   ui.mainSw.classList.add('armed');
   const beatDur = 60 / state.bpm;
   const startAt = ctx.currentTime + 0.1;
 
-  // play 1 bar of count-in clicks
   for (let i = 0; i < state.beatsPerBar; i++) {
     const t = startAt + i * beatDur;
     clickAt(t, i === 0);
-    // schedule UI flash
     const delay = (t - ctx.currentTime) * 1000;
-    setTimeout(() => {
-      flashCountBeat(i);
-      ui.barCounter.textContent = 0;
-    }, delay);
+    setTimeout(() => { flashCountBeat(i); ui.barCounter.textContent = 0; }, delay);
   }
 
-  // schedule recording start exactly at end of count-in bar
   const recordStartTime = startAt + state.beatsPerBar * beatDur;
-  const waitMs = (recordStartTime - ctx.currentTime) * 1000;
-  await new Promise(r => setTimeout(r, waitMs));
+  await new Promise(r => setTimeout(r, (recordStartTime - ctx.currentTime) * 1000));
 
-  // begin recording
-  const sampleRate = ctx.sampleRate;
   const totalBeats = state.bars * state.beatsPerBar;
-  const loopSamples = Math.round(totalBeats * beatDur * sampleRate);
+  const loopSamples = Math.round(totalBeats * beatDur * ctx.sampleRate);
 
-  workletNode.port.postMessage({
-    type: 'init',
-    length: loopSamples,
-    beats: totalBeats
-  });
+  workletNode.port.postMessage({ type: 'init', length: loopSamples, beats: totalBeats });
   workletNode.port.postMessage({ type: 'mode', mode: 'recording', resetPlayhead: true });
 
   state.appState = 'recording';
@@ -1075,16 +817,11 @@ async function runCountIn() {
   ui.ringProgress.classList.add('rec');
   ui.mainLabel.textContent = 'STOP REC';
 
-  // start in-loop metronome from beat 0 if enabled
-  if (state.metronomeInLoop) {
-    startMetronomeScheduler(0);
-  }
+  if (state.metronomeInLoop) startMetronomeScheduler(0);
 }
 
-// ─── Loop wrap handler ───────────────────────────────────────
-function onLoopWrap() {
+function loopWrapWithOverdub() {
   if (state.appState === 'recording') {
-    // first pass done → switch to playback
     state.appState = 'playing';
     state.layers = 1;
     workletNode.port.postMessage({ type: 'mode', mode: 'playing' });
@@ -1099,19 +836,14 @@ function onLoopWrap() {
     ui.stopBtn.disabled = false;
     ui.clearBtn.disabled = false;
   }
-  // overdubbing wraps automatically without state change
+  if (pendingOverdub && state.appState === 'playing') {
+    pendingOverdub = false;
+    startOverdubNow();
+  }
 }
 
-// ─── Snapshot for undo ───────────────────────────────────────
 function snapshotBuffer() {
   return new Promise((resolve) => {
-    const handler = (e) => {
-      if (e.data.type === 'buffer') {
-        workletNode.port.removeEventListener('message', handler);
-        resolve(e.data.buffer);
-      }
-    };
-    // can't easily addEventListener on port — wrap manually
     const orig = workletNode.port.onmessage;
     workletNode.port.onmessage = (e) => {
       if (e.data.type === 'buffer') {
@@ -1123,15 +855,11 @@ function snapshotBuffer() {
   });
 }
 
-// ─── Overdub start (quantized to next loop start) ────────────
-let pendingOverdub = false;
 async function armOverdub() {
-  // snapshot current state for undo BEFORE the next loop wrap
   const snap = await snapshotBuffer();
   state.undoStack.push(snap);
   state.redoStack = [];
   ui.redoSw.disabled = true;
-
   pendingOverdub = true;
   setStatus('dub', 'DUB ARMED');
   ui.mainSw.classList.add('armed');
@@ -1143,8 +871,7 @@ function startOverdubNow() {
   state.layers++;
   ui.layerCount.textContent = state.layers;
   setStatus('dub', 'OVERDUB');
-  ui.mainSw.classList.remove('armed');
-  ui.mainSw.classList.remove('play');
+  ui.mainSw.classList.remove('armed','play');
   ui.mainSw.classList.add('dub');
   ui.ringProgress.classList.remove('play');
   ui.ringProgress.classList.add('dub');
@@ -1162,49 +889,6 @@ function endOverdub() {
   ui.mainLabel.textContent = 'OVERDUB';
 }
 
-// hook into loop wrap to trigger pending overdub at downbeat
-const _origOnLoopWrap = onLoopWrap;
-function loopWrapWithOverdub() {
-  _origOnLoopWrap();
-  if (pendingOverdub && state.appState === 'playing') {
-    pendingOverdub = false;
-    startOverdubNow();
-  }
-}
-
-// patch the message handler after init
-function attachWorkletMessages() {
-  workletNode.port.onmessage = (e) => {
-    const m = e.data;
-    if (m.type === 'beat') {
-      updateRing(m.position);
-      const localBeat = m.beat % (state.bars * state.beatsPerBar);
-      flashBeat(localBeat, localBeat % state.beatsPerBar === 0);
-      const bar = Math.floor(localBeat / state.beatsPerBar) + 1;
-      ui.barCounter.textContent = bar;
-    } else if (m.type === 'loop') {
-      loopWrapWithOverdub();
-    } else if (m.type === 'level') {
-      updateMeter(m.peak);
-    } else if (m.type === 'buffer') {
-      // handled by snapshotBuffer wrapper
-    }
-  };
-}
-
-function updateMeter(peak) {
-  // peak is 0..1 (or higher if clipping); map to a dB scale for display
-  const pct = Math.min(100, peak * 100);
-  ui.meterFill.style.width = pct + '%';
-  if (peak < 0.0001) {
-    ui.meterVal.textContent = '−∞';
-  } else {
-    const db = 20 * Math.log10(peak);
-    ui.meterVal.textContent = db.toFixed(0) + ' dB';
-  }
-}
-
-// ─── Stop & clear ────────────────────────────────────────────
 function stopLoop() {
   workletNode.port.postMessage({ type: 'mode', mode: 'idle' });
   stopMetronomeScheduler();
@@ -1240,7 +924,6 @@ function clearLoop() {
   clearBeats();
 }
 
-// ─── Undo / Redo ─────────────────────────────────────────────
 async function doUndo() {
   if (state.undoStack.length === 0) return;
   const current = await snapshotBuffer();
@@ -1264,7 +947,6 @@ async function doRedo() {
   if (state.redoStack.length === 0) ui.redoSw.disabled = true;
 }
 
-// ─── UI bindings ─────────────────────────────────────────────
 const ui = {};
 function $(id) { return document.getElementById(id); }
 
@@ -1274,21 +956,18 @@ function setStatus(klass, text) {
 }
 
 function updateRing(position) {
-  // circumference = 2*pi*92 ≈ 578
-  const offset = 578 * (1 - position);
-  ui.ringProgress.setAttribute('stroke-dashoffset', offset);
+  ui.ringProgress.setAttribute('stroke-dashoffset', 578 * (1 - position));
 }
 
 function buildBeatDots() {
   ui.beatRow.innerHTML = '';
   const total = state.bars * state.beatsPerBar;
-  // cap visible dots to avoid overflow on phones
   const maxDots = Math.min(total, 16);
   ui.beatRow.dataset.total = total;
   ui.beatRow.dataset.shown = maxDots;
   for (let i = 0; i < maxDots; i++) {
     const dot = document.createElement('div');
-    dot.className = 'beat' + (i % state.beatsPerBar === 0 ? ' downbeat-pos' : '');
+    dot.className = 'beat';
     ui.beatRow.appendChild(dot);
   }
 }
@@ -1296,7 +975,6 @@ function buildBeatDots() {
 function flashBeat(beatIdx, isDownbeat) {
   const total = parseInt(ui.beatRow.dataset.total, 10);
   const shown = parseInt(ui.beatRow.dataset.shown, 10);
-  // map total beats → shown dots
   const dotIdx = Math.floor((beatIdx / total) * shown);
   const dots = ui.beatRow.children;
   for (const d of dots) d.classList.remove('on','downbeat');
@@ -1326,32 +1004,28 @@ function refreshParams() {
   buildBeatDots();
 }
 
-// ─── Init ────────────────────────────────────────────────────
 function cacheUI() {
   ['statusText','barCounter','barTotal','ringProgress','layerCount','beatRow',
    'bpmVal','barsVal','bpmDown','bpmUp','barsDown','barsUp','metSwitch',
-   'mainSw','mainLabel','undoSw','redoSw','stopBtn','clearBtn','ioBtn',
+   'mainSw','mainLabel','undoSw','redoSw','stopBtn','clearBtn',
    'startOverlay','startBtn','startError',
-   'stepPower','stepDevices','inputSelect','outputSelect','outputNote',
-   'rescanBtn','confirmDevicesBtn','deviceError',
    'meterFill','meterVal','activeDevice']
     .forEach(id => ui[id] = $(id));
 }
 
 function wireUI() {
-  ui.bpmDown.onclick = () => { if (state.appState === 'idle') { state.bpm = Math.max(40, state.bpm - 1); refreshParams(); } };
-  ui.bpmUp.onclick   = () => { if (state.appState === 'idle') { state.bpm = Math.min(240, state.bpm + 1); refreshParams(); } };
+  ui.bpmDown.onclick  = () => { if (state.appState === 'idle') { state.bpm  = Math.max(40, state.bpm - 1); refreshParams(); } };
+  ui.bpmUp.onclick    = () => { if (state.appState === 'idle') { state.bpm  = Math.min(240, state.bpm + 1); refreshParams(); } };
   ui.barsDown.onclick = () => { if (state.appState === 'idle') { state.bars = Math.max(1, state.bars - 1); refreshParams(); } };
   ui.barsUp.onclick   = () => { if (state.appState === 'idle') { state.bars = Math.min(16, state.bars + 1); refreshParams(); } };
 
-  // long-press accelerate
   [['bpmDown',-1,'bpm'],['bpmUp',1,'bpm'],['barsDown',-1,'bars'],['barsUp',1,'bars']].forEach(([id,dir,key]) => {
     let interval, timeout;
     const el = ui[id];
     const fire = () => {
       if (state.appState !== 'idle') return;
-      if (key === 'bpm') { state.bpm = Math.min(240, Math.max(40, state.bpm + dir)); }
-      else { state.bars = Math.min(16, Math.max(1, state.bars + dir)); }
+      if (key === 'bpm') state.bpm = Math.min(240, Math.max(40, state.bpm + dir));
+      else state.bars = Math.min(16, Math.max(1, state.bars + dir));
       refreshParams();
     };
     el.addEventListener('pointerdown', () => {
@@ -1364,28 +1038,16 @@ function wireUI() {
   ui.metSwitch.onclick = () => {
     state.metronomeInLoop = !state.metronomeInLoop;
     ui.metSwitch.classList.toggle('on', state.metronomeInLoop);
-    if (state.metronomeInLoop && (state.appState === 'playing' || state.appState === 'overdubbing' || state.appState === 'recording')) {
-      // start metronome aligned with current playhead
-      startMetronomeScheduler(0);
-    } else if (!state.metronomeInLoop) {
-      stopMetronomeScheduler();
-    }
+    if (state.metronomeInLoop && state.appState !== 'idle') startMetronomeScheduler(0);
+    else if (!state.metronomeInLoop) stopMetronomeScheduler();
   };
 
   ui.mainSw.onclick = async () => {
-    if (state.appState === 'idle') {
-      // START → count-in → record
-      await runCountIn();
-    } else if (state.appState === 'playing') {
-      // arm overdub on next downbeat
-      await armOverdub();
-    } else if (state.appState === 'overdubbing') {
-      endOverdub();
-    } else if (state.appState === 'recording') {
-      // user wants to bail out of first take
-      clearLoop();
-    } else if (state.appState === 'countin') {
-      // cancel count-in
+    if (state.appState === 'idle') await runCountIn();
+    else if (state.appState === 'playing') await armOverdub();
+    else if (state.appState === 'overdubbing') endOverdub();
+    else if (state.appState === 'recording') clearLoop();
+    else if (state.appState === 'countin') {
       stopMetronomeScheduler();
       state.appState = 'idle';
       setStatus('idle', 'IDLE');
@@ -1393,136 +1055,37 @@ function wireUI() {
     }
   };
 
-  ui.undoSw.onclick = doUndo;
-  ui.redoSw.onclick = doRedo;
+  ui.undoSw.onclick  = doUndo;
+  ui.redoSw.onclick  = doRedo;
   ui.stopBtn.onclick = stopLoop;
   ui.clearBtn.onclick = clearLoop;
 
-  // keyboard
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
     if (e.code === 'Space') { e.preventDefault(); ui.mainSw.click(); }
-    else if (e.code === 'KeyZ') { if (!ui.undoSw.disabled) doUndo(); }
-    else if (e.code === 'KeyY') { if (!ui.redoSw.disabled) doRedo(); }
-    else if (e.code === 'KeyS') { if (!ui.stopBtn.disabled) stopLoop(); }
-    else if (e.code === 'KeyC') { if (!ui.clearBtn.disabled) clearLoop(); }
+    else if (e.code === 'KeyZ' && !ui.undoSw.disabled) doUndo();
+    else if (e.code === 'KeyY' && !ui.redoSw.disabled) doRedo();
+    else if (e.code === 'KeyS' && !ui.stopBtn.disabled) stopLoop();
+    else if (e.code === 'KeyC' && !ui.clearBtn.disabled) clearLoop();
   });
-
-  // ─── Device picker flow ────────────────────────────────
-  async function populateDevicePickers() {
-    const { inputs, outputs } = await listDevices();
-
-    // INPUT
-    ui.inputSelect.innerHTML = '';
-    if (inputs.length === 0) {
-      const opt = document.createElement('option');
-      opt.textContent = 'No input devices found';
-      opt.disabled = true;
-      ui.inputSelect.appendChild(opt);
-    } else {
-      inputs.forEach((d, i) => {
-        const opt = document.createElement('option');
-        opt.value = d.deviceId;
-        opt.textContent = d.label || `Input ${i + 1}`;
-        if (d.deviceId === chosenInputId) opt.selected = true;
-        ui.inputSelect.appendChild(opt);
-      });
-    }
-
-    // OUTPUT
-    const outSupported = outputSelectionSupported();
-    ui.outputSelect.innerHTML = '';
-    if (!outSupported) {
-      const opt = document.createElement('option');
-      opt.textContent = 'System default (browser does not support selection)';
-      opt.disabled = true;
-      opt.selected = true;
-      ui.outputSelect.appendChild(opt);
-      ui.outputSelect.disabled = true;
-      ui.outputNote.textContent = 'Routed through the OS default audio output';
-    } else if (outputs.length === 0) {
-      const opt = document.createElement('option');
-      opt.textContent = 'No output devices found';
-      opt.disabled = true;
-      ui.outputSelect.appendChild(opt);
-      ui.outputSelect.disabled = true;
-      ui.outputNote.textContent = '';
-    } else {
-      ui.outputSelect.disabled = false;
-      outputs.forEach((d, i) => {
-        const opt = document.createElement('option');
-        opt.value = d.deviceId;
-        opt.textContent = d.label || `Output ${i + 1}`;
-        if (d.deviceId === chosenOutputId) opt.selected = true;
-        ui.outputSelect.appendChild(opt);
-      });
-      ui.outputNote.textContent = '';
-    }
-  }
-
-  function showStep(name) {
-    ui.stepPower.classList.toggle('hidden', name !== 'power');
-    ui.stepDevices.classList.toggle('hidden', name !== 'devices');
-    if (name) ui.startOverlay.classList.remove('hidden');
-  }
 
   ui.startBtn.onclick = async () => {
     ui.startBtn.disabled = true;
     ui.startBtn.textContent = 'INITIALIZING...';
     ui.startError.textContent = '';
     try {
-      await requestMicPermission();
-      await populateDevicePickers();
-      showStep('devices');
+      await initAudio();
+      if (ctx.state === 'suspended') await ctx.resume();
+      ui.startOverlay.classList.add('hidden');
+      setStatus('idle', 'IDLE');
     } catch (err) {
       ui.startBtn.disabled = false;
       ui.startBtn.textContent = 'RETRY';
       ui.startError.textContent = err.message;
     }
   };
-
-  ui.rescanBtn.onclick = async () => {
-    ui.deviceError.textContent = '';
-    try { await populateDevicePickers(); }
-    catch (err) { ui.deviceError.textContent = err.message; }
-  };
-
-  ui.confirmDevicesBtn.onclick = async () => {
-    ui.confirmDevicesBtn.disabled = true;
-    ui.confirmDevicesBtn.textContent = 'CONNECTING...';
-    ui.deviceError.textContent = '';
-    try {
-      const inId  = ui.inputSelect.value && !ui.inputSelect.disabled ? ui.inputSelect.value : null;
-      const outId = ui.outputSelect.value && !ui.outputSelect.disabled ? ui.outputSelect.value : null;
-      await connectAudio(inId, outId);
-      attachWorkletMessages();
-      ui.startOverlay.classList.add('hidden');
-      setStatus('idle', 'IDLE');
-    } catch (err) {
-      ui.deviceError.textContent = err.message;
-    } finally {
-      ui.confirmDevicesBtn.disabled = false;
-      ui.confirmDevicesBtn.textContent = 'CONFIRM';
-    }
-  };
-
-  // I/O button on main UI — re-opens the picker mid-session.
-  // Stops any active loop first so the audio graph rebuild doesn't glitch.
-  ui.ioBtn.onclick = async () => {
-    if (state.appState !== 'idle') stopLoop();
-    await populateDevicePickers();
-    showStep('devices');
-  };
-
-  // hot-plug: refresh picker if it's currently open
-  navigator.mediaDevices.addEventListener('devicechange', async () => {
-    if (!ui.stepDevices.classList.contains('hidden')) {
-      try { await populateDevicePickers(); } catch (_) {}
-    }
-  });
 }
 
-// boot
 document.addEventListener('DOMContentLoaded', () => {
   cacheUI();
   refreshParams();
