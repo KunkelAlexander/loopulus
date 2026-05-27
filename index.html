@@ -4,10 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0a0a" />
-<title>LOOP/02.1 — Guitar Looper</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<title>Loopulus</title>
 <style>
   :root {
     --bg: #0a0a0a;
@@ -21,8 +18,8 @@
     --led-green: #20d97a;
     --led-blue: #4cc2ff;
     --rule: #1a1a1a;
-    --mono: 'JetBrains Mono', ui-monospace, monospace;
-    --display: 'Major Mono Display', 'JetBrains Mono', monospace;
+    --mono: ui-monospace, 'Cascadia Code', 'SF Mono', 'Fira Code', Consolas, monospace;
+    --display: ui-monospace, 'Cascadia Code', 'SF Mono', Consolas, monospace;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--mono); overscroll-behavior: none; }
@@ -296,7 +293,7 @@
 <body>
 
 <div class="start-overlay" id="startOverlay">
-  <h1>LOOP<span class="slash">/</span>02.1</h1>
+  <h1>Loopulus</h1>
   <p>
     Connect your guitar amp's output to your phone, plug headphones into the amp's monitor, and tap below to grant microphone access. Use headphones to prevent feedback.
   </p>
@@ -306,7 +303,7 @@
 
 <div class="pedal">
   <div class="header">
-    <div class="brand">LOOP<span class="slash">/</span>02.1</div>
+    <div class="brand">Loopulus</div>
     <div class="model">v2.1 · audiobuffer playback</div>
   </div>
 
@@ -386,12 +383,12 @@
 
 <div class="footer">
   <div id="activeDevice">IN: —</div>
-  <div>v2.1 · BUFFER PLAYBACK · OS-ROUTED · USE HEADPHONES</div>
+  <div>Loopulus v2.1 · BUFFER PLAYBACK · USE HEADPHONES</div>
 </div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   LOOP/02.1 — Guitar Looper
+   Loopulus
 
    Architecture change vs v2:
    - latencyHint: 'playback' (bigger buffers, more stable on Android)
@@ -517,7 +514,8 @@ let metronomeNextTime = 0, metronomeBeatCount = 0, metronomeTimerId = null;
 // Loop state
 let loopBuffer = null;          // AudioBuffer holding the current loop
 let loopDuration = 0;           // seconds
-let loopStartTime = 0;          // ctx.currentTime when loop playback began (this cycle)
+let loopAnchor = 0;             // ctx.currentTime of beat 0 of the first recorded cycle — never changes until clear
+let loopStartTime = 0;          // ctx.currentTime when the current source node started
 let currentSource = null;       // AudioBufferSourceNode currently playing
 let positionRafId = null;
 
@@ -555,9 +553,9 @@ async function initAudio() {
 
   const track = micStream.getAudioTracks()[0];
   const settings = track ? track.getSettings() : {};
-  console.log('[LOOP/02.1] baseLatency:', ctx.baseLatency, 'outputLatency:', ctx.outputLatency, 'sampleRate:', ctx.sampleRate);
-  console.log('[LOOP/02.1] Track label:', track ? track.label : '(none)');
-  console.log('[LOOP/02.1] Track settings:', settings);
+  console.log('[Loopulus] baseLatency:', ctx.baseLatency, 'outputLatency:', ctx.outputLatency, 'sampleRate:', ctx.sampleRate);
+  console.log('[Loopulus] Track label:', track ? track.label : '(none)');
+  console.log('[Loopulus] Track settings:', settings);
   ui.activeDevice.textContent = 'IN: ' + (track && track.label ? track.label : 'system default');
 
   const blob = new Blob([workletSrc], { type: 'application/javascript' });
@@ -710,9 +708,10 @@ async function runCountIn() {
   ui.stopBtn.disabled = false;
   ui.clearBtn.disabled = false;
 
-  // Begin playback immediately at the natural loop boundary.
-  // Use baseLatency as the minimum lookahead so we stay ahead of the hardware buffer.
-  startPlayback(ctx.currentTime + Math.max(ctx.baseLatency * 2, 0.05));
+  // Use recordStartTime as the phase anchor so the metronome stays locked to the recording.
+  // The source starts at exactly one loop length after beat 0 of the recording.
+  loopAnchor = recordStartTime;
+  startPlayback(loopAnchor + loopDuration);
   enterPlayingState();
 }
 
@@ -728,22 +727,10 @@ function startPlayback(when) {
   currentSource = src;
   loopStartTime = when;
 
-  // schedule in-loop metronome for this cycle and continuously
   if (state.metronomeInLoop) {
     scheduleMetronomeFromTime(when, state.bars * state.beatsPerBar);
-    // continue scheduling subsequent cycles via interval
-    if (!metronomeTimerId) {
-      metronomeTimerId = setInterval(() => {
-        // schedule a cycle ahead if needed
-        const ahead = loopStartTime + loopDuration;
-        if (ahead < ctx.currentTime + 0.5) {
-          loopStartTime = ahead;  // we don't actually want to mutate this here
-        }
-      }, 200);
-      // simpler: schedule next cycle's clicks repeatedly
-      stopMetronomeScheduler();
-      startCyclicMetronome();
-    }
+    stopMetronomeScheduler();
+    startCyclicMetronome();
   }
 
   if (positionRafId) cancelAnimationFrame(positionRafId);
@@ -751,14 +738,15 @@ function startPlayback(when) {
 }
 
 function startCyclicMetronome() {
-  // schedule metronome for cycles ahead so it stays in sync with the loop
-  const beatDur = 60 / state.bpm;
   const totalBeats = state.bars * state.beatsPerBar;
-  let nextCycleStart = loopStartTime + loopDuration;
+  // Derive the current cycle boundary from the anchor so we never accumulate drift.
+  const cycleIdx = Math.round((ctx.currentTime - loopAnchor) / loopDuration);
+  let lastScheduled = loopAnchor + cycleIdx * loopDuration;
   metronomeTimerId = setInterval(() => {
-    while (nextCycleStart < ctx.currentTime + 0.5) {
-      scheduleMetronomeFromTime(nextCycleStart, totalBeats);
-      nextCycleStart += loopDuration;
+    const lookahead = ctx.currentTime + 0.5;
+    while (lastScheduled + loopDuration <= lookahead) {
+      lastScheduled += loopDuration;
+      scheduleMetronomeFromTime(lastScheduled, totalBeats);
     }
   }, 100);
 }
@@ -930,6 +918,7 @@ function clearLoop() {
   if (positionRafId) { cancelAnimationFrame(positionRafId); positionRafId = null; }
   workletNode.port.postMessage({ type: 'reset' });
   loopBuffer = null;
+  loopAnchor = 0;
   state.appState = 'idle';
   state.layers = 0;
   state.undoStack = [];
@@ -1108,8 +1097,9 @@ function wireUI() {
     if (state.appState === 'idle' && !loopBuffer) {
       await runCountIn();
     } else if (state.appState === 'idle' && loopBuffer) {
-      // RESUME from stop
-      startPlayback(ctx.currentTime + 0.02);
+      // RESUME from stop — reset anchor since the buffer restarts from sample 0
+      loopAnchor = ctx.currentTime + 0.02;
+      startPlayback(loopAnchor);
       enterPlayingState();
     } else if (state.appState === 'playing') {
       await armOverdub();
