@@ -539,14 +539,14 @@ async function initAudio() {
   ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
 
   try {
-    micStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: { ideal: false },
-        noiseSuppression: { ideal: false },
-        autoGainControl: { ideal: false },
-      },
-      video: false,
-    });
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    // Disable voice-call DSP after device selection so Android doesn't swap to a different input.
+    const track = micStream.getAudioTracks()[0];
+    if (track) {
+      try {
+        await track.applyConstraints({ echoCancellation: false, noiseSuppression: false, autoGainControl: false });
+      } catch (_) {}
+    }
   } catch (err) {
     throw new Error('Microphone access denied: ' + err.message);
   }
