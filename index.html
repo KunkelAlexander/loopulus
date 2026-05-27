@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0a" />
+<title>Loopulus — Guitar Looper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     Loopulus — pedal-inspired dark UI
+     ───────────────────────────────────────────────────────────── */
+  :root {
+    --bg: #0a0a0a;
+    --panel: #141414;
+    --panel-edge: #1f1f1f;
+    --ink: #e8e6df;
+    --ink-dim: #6b6960;
+    --ink-faint: #2a2925;
+    --led-red: #ff3b30;
+    --led-amber: #ffb020;
+    --led-green: #20d97a;
+    --led-blue: #4cc2ff;
+    --rule: #1a1a1a;
+    --screw: #2a2a2a;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --display: 'Major Mono Display', 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--mono); overscroll-behavior: none; }
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background:
+      radial-gradient(ellipse at top, #1a1a1a 0%, var(--bg) 60%),
+      repeating-linear-gradient(0deg, transparent 0 2px, rgba(255,255,255,0.012) 2px 3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 14px 32px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ── chassis ─────────────────────────────────────────────── */
+  .pedal {
+    width: 100%;
+    max-width: 440px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+    border: 1px solid var(--panel-edge);
+    border-radius: 14px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.04),
+      inset 0 -1px 0 rgba(0,0,0,0.6),
+      0 20px 60px rgba(0,0,0,0.6);
+    padding: 22px 20px 26px;
+    position: relative;
+  }
+  .pedal::before, .pedal::after {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a 70%);
+    box-shadow: inset 0 0 2px #000;
+  }
+  .pedal::before { top: 10px; left: 10px; }
+  .pedal::after  { top: 10px; right: 10px; }
+  .pedal .screws-bottom { position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; }
+  .pedal .screws-bottom span {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a 70%);
+    box-shadow: inset 0 0 2px #000;
+  }
+
+  /* ── header ─────────────────────────────────────────────── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 4px 6px 14px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 18px;
+  }
+  .brand {
+    font-family: var(--display);
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+  }
+  .brand .slash { color: var(--led-red); }
+  .model {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+  }
+
+  /* ── display ────────────────────────────────────────────── */
+  .display {
+    background: #050505;
+    border: 1px solid #000;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8), inset 0 0 2px rgba(76,194,255,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .display::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(76,194,255,0.02) 2px 3px);
+    pointer-events: none;
+  }
+  .display-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+  }
+  .status-text {
+    font-family: var(--display);
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    color: var(--led-amber);
+    text-shadow: 0 0 10px rgba(255,176,32,0.4);
+    transition: color 0.15s, text-shadow 0.15s;
+  }
+  .status-text.rec { color: var(--led-red); text-shadow: 0 0 12px rgba(255,59,48,0.6); }
+  .status-text.play { color: var(--led-green); text-shadow: 0 0 12px rgba(32,217,122,0.5); }
+  .status-text.dub { color: var(--led-blue); text-shadow: 0 0 12px rgba(76,194,255,0.5); }
+  .status-text.cnt { color: var(--led-amber); }
+
+  .counter {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-dim);
+    letter-spacing: 0.1em;
+  }
+  .counter b { color: var(--ink); font-weight: 500; }
+
+  /* progress ring */
+  .ring-wrap {
+    margin: 14px auto 6px;
+    position: relative;
+    width: 180px; height: 180px;
+  }
+  .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: #0c0c0c; stroke-width: 8; }
+  .ring-progress {
+    fill: none;
+    stroke: var(--led-amber);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke 0.15s;
+  }
+  .ring-progress.rec  { stroke: var(--led-red); }
+  .ring-progress.play { stroke: var(--led-green); }
+  .ring-progress.dub  { stroke: var(--led-blue); }
+  .ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px;
+  }
+  .layer-count {
+    font-family: var(--display);
+    font-size: 38px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .layer-label {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+  }
+
+  /* beat dots */
+  .beats {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 12px 0 4px;
+  }
+  .beat {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    transition: all 0.08s;
+  }
+  .beat.on {
+    background: var(--led-amber);
+    border-color: var(--led-amber);
+    box-shadow: 0 0 12px var(--led-amber), 0 0 4px var(--led-amber);
+  }
+  .beat.on.downbeat {
+    background: var(--led-red);
+    border-color: var(--led-red);
+    box-shadow: 0 0 14px var(--led-red), 0 0 4px var(--led-red);
+  }
+
+  /* ── controls grid ─────────────────────────────────────── */
+  .knobs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .knob {
+    background: #0d0d0d;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .knob .lbl {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+  }
+  .knob .val {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink);
+    min-width: 50px;
+    text-align: right;
+  }
+  .knob .stepper {
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+  }
+  .knob button {
+    width: 26px; height: 26px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.1s;
+  }
+  .knob button:active { background: #2a2a2a; }
+  .knob button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* metronome toggle */
+  .met-toggle {
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0d0d0d;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .met-toggle .lbl {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+  }
+  .switch {
+    position: relative;
+    width: 56px; height: 28px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #4a4a4a, #2a2a2a);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: transform 0.2s ease;
+  }
+  .switch.on { background: rgba(32,217,122,0.18); border-color: var(--led-green); }
+  .switch.on::after { transform: translateX(28px); background: linear-gradient(180deg, var(--led-green), #1aa860); box-shadow: 0 0 12px rgba(32,217,122,0.6); }
+
+  /* ── footswitches ──────────────────────────────────────── */
+  .switches {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .fsw {
+    aspect-ratio: 1.6 / 1;
+    background: linear-gradient(180deg, #2a2a2a 0%, #161616 100%);
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: transform 0.05s, box-shadow 0.15s;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      inset 0 -2px 4px rgba(0,0,0,0.4),
+      0 4px 0 #050505,
+      0 6px 12px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .fsw:active, .fsw.held {
+    transform: translateY(3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.04),
+      inset 0 -1px 2px rgba(0,0,0,0.4),
+      0 1px 0 #050505,
+      0 2px 6px rgba(0,0,0,0.5);
+  }
+  .fsw .led {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 1px solid #0a0a0a;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.6);
+    transition: all 0.12s;
+  }
+  .fsw.armed .led   { background: var(--led-amber); box-shadow: 0 0 8px var(--led-amber); }
+  .fsw.rec .led     { background: var(--led-red);   box-shadow: 0 0 10px var(--led-red); animation: pulse 0.6s infinite; }
+  .fsw.play .led    { background: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
+  .fsw.dub .led     { background: var(--led-blue);  box-shadow: 0 0 10px var(--led-blue); animation: pulse 0.6s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .fsw-main { grid-column: span 2; aspect-ratio: 3.2 / 1; }
+  .fsw-main .label-row { display: flex; gap: 24px; align-items: center; }
+  .fsw-main .label-row span { font-size: 11px; letter-spacing: 0.2em; }
+
+  /* ── secondary controls ────────────────────────────────── */
+  .secondary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .btn {
+    background: #141414;
+    border: 1px solid var(--rule);
+    color: var(--ink-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 12px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  .btn:active { background: #1f1f1f; color: var(--ink); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn.danger:active { color: var(--led-red); border-color: var(--led-red); }
+
+  /* ── start screen ──────────────────────────────────────── */
+  .start-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,10,10,0.96);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 100;
+    padding: 24px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+  .start-overlay.hidden { display: none; }
+  .start-overlay h1 {
+    font-family: var(--display);
+    font-size: 32px;
+    letter-spacing: 0.1em;
+    margin: 0 0 12px;
+  }
+  .start-overlay h1 .slash { color: var(--led-red); }
+  .start-overlay p {
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ink-dim);
+    max-width: 320px;
+    margin: 0 0 24px;
+    letter-spacing: 0.05em;
+  }
+  .start-btn {
+    background: var(--led-red);
+    color: #0a0a0a;
+    border: none;
+    padding: 16px 40px;
+    font-family: var(--display);
+    font-size: 16px;
+    letter-spacing: 0.15em;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(255,59,48,0.4);
+    transition: transform 0.1s;
+  }
+  .start-btn:active { transform: scale(0.96); }
+  .start-error {
+    margin-top: 18px;
+    color: var(--led-red);
+    font-size: 11px;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+
+  /* ── footer notes ──────────────────────────────────────── */
+  .footer {
+    margin-top: 16px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  /* small screens */
+  @media (max-width: 380px) {
+    .ring-wrap { width: 150px; height: 150px; }
+    .layer-count { font-size: 32px; }
+    .brand { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── start overlay (required to unlock audio on mobile) ── -->
+<div class="start-overlay" id="startOverlay">
+  <h1>LOOP<span class="slash">/</span>01</h1>
+  <p>
+    Connect your guitar amp's output to your phone, plug headphones into the amp's monitor, and tap below to grant microphone access. Use headphones to prevent feedback.
+  </p>
+  <button class="start-btn" id="startBtn">POWER ON</button>
+  <div class="start-error" id="startError"></div>
+</div>
+
+<!-- ── main pedal ── -->
+<div class="pedal" id="pedal">
+
+  <div class="header">
+    <div class="brand">LOOP<span class="slash">/</span>01</div>
+    <div class="model">v1 · web · single-loop</div>
+  </div>
+
+  <!-- display -->
+  <div class="display">
+    <div class="display-row">
+      <div class="status-text" id="statusText">IDLE</div>
+      <div class="counter">BAR <b id="barCounter">0</b>/<b id="barTotal">4</b></div>
+    </div>
+
+    <div class="ring-wrap">
+      <svg viewBox="0 0 200 200">
+        <circle class="ring-track" cx="100" cy="100" r="92"/>
+        <circle id="ringProgress" class="ring-progress" cx="100" cy="100" r="92"
+                stroke-dasharray="578" stroke-dashoffset="578"/>
+      </svg>
+      <div class="ring-center">
+        <div class="layer-count" id="layerCount">0</div>
+        <div class="layer-label">layers</div>
+      </div>
+    </div>
+
+    <div class="beats" id="beatRow">
+      <!-- beat dots populated by JS -->
+    </div>
+  </div>
+
+  <!-- knobs / params -->
+  <div class="knobs">
+    <div class="knob">
+      <span class="lbl">BPM</span>
+      <span class="val" id="bpmVal">100</span>
+      <div class="stepper">
+        <button id="bpmDown">−</button>
+        <button id="bpmUp">+</button>
+      </div>
+    </div>
+    <div class="knob">
+      <span class="lbl">BARS</span>
+      <span class="val" id="barsVal">4</span>
+      <div class="stepper">
+        <button id="barsDown">−</button>
+        <button id="barsUp">+</button>
+      </div>
+    </div>
+
+    <div class="met-toggle">
+      <span class="lbl">METRONOME · IN LOOP</span>
+      <div class="switch" id="metSwitch"></div>
+    </div>
+  </div>
+
+  <!-- footswitches -->
+  <div class="switches">
+    <button class="fsw fsw-main" id="mainSw">
+      <div class="led"></div>
+      <div class="label-row">
+        <span id="mainLabel">START</span>
+      </div>
+    </button>
+    <button class="fsw" id="undoSw" disabled>
+      <div class="led"></div>
+      <span>UNDO</span>
+    </button>
+    <button class="fsw" id="redoSw" disabled>
+      <div class="led"></div>
+      <span>REDO</span>
+    </button>
+  </div>
+
+  <!-- secondary -->
+  <div class="secondary">
+    <button class="btn" id="stopBtn" disabled>STOP</button>
+    <button class="btn danger" id="clearBtn" disabled>CLEAR</button>
+  </div>
+
+  <div class="screws-bottom"><span></span><span></span></div>
+</div>
+
+<div class="footer">USE HEADPHONES · DISABLE NOISE SUPPRESSION ON YOUR DEVICE IF NEEDED</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Loopulus — Guitar Looper
+   Single-loop, unlimited overdubs, count-in, quantized to bar.
+   AudioWorklet handles the per-sample mixing on the audio thread.
+   ═══════════════════════════════════════════════════════════════ */
+
+// ─── AudioWorklet processor source (loaded as Blob URL) ────────
+const workletSrc = `
+class LooperProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.buffer = null;          // Float32Array, the loop
+    this.bufferLength = 0;       // samples in one loop
+    this.playhead = 0;           // current playback position
+    this.mode = 'idle';          // 'idle' | 'recording' | 'playing' | 'overdubbing'
+    this.lastBeat = -1;
+    this.beatsPerLoop = 16;      // bars * 4
+
+    this.port.onmessage = (e) => {
+      const m = e.data;
+      if (m.type === 'init') {
+        this.bufferLength = m.length;
+        this.buffer = new Float32Array(this.bufferLength);
+        this.playhead = 0;
+        this.beatsPerLoop = m.beats;
+        this.lastBeat = -1;
+      } else if (m.type === 'mode') {
+        this.mode = m.mode;
+        if (m.mode === 'recording' || m.mode === 'playing') {
+          // reset playhead on transitions that align to loop start
+          if (m.resetPlayhead) { this.playhead = 0; this.lastBeat = -1; }
+        }
+      } else if (m.type === 'replaceBuffer') {
+        // for undo/redo
+        this.buffer = new Float32Array(m.buffer);
+      } else if (m.type === 'getBuffer') {
+        const copy = new Float32Array(this.buffer).buffer;
+        this.port.postMessage({ type: 'buffer', buffer: copy }, [copy]);
+      }
+    };
+  }
+
+  process(inputs, outputs) {
+    const input = inputs[0];
+    const output = outputs[0];
+    if (!output || !output[0]) return true;
+    const outL = output[0];
+    const outR = output[1] || output[0];
+    const inCh = (input && input[0]) ? input[0] : null;
+    const frames = outL.length;
+
+    if (!this.buffer || this.mode === 'idle') {
+      for (let i = 0; i < frames; i++) { outL[i] = 0; if (outR !== outL) outR[i] = 0; }
+      return true;
+    }
+
+    for (let i = 0; i < frames; i++) {
+      const inSample = inCh ? inCh[i] : 0;
+      let outSample = 0;
+
+      if (this.mode === 'recording') {
+        // first pass: write input, no playback of existing buffer
+        this.buffer[this.playhead] = inSample;
+        outSample = 0; // monitoring handled by amp directly
+      } else if (this.mode === 'playing') {
+        outSample = this.buffer[this.playhead];
+      } else if (this.mode === 'overdubbing') {
+        // mix new input into existing buffer, output the existing buffer
+        outSample = this.buffer[this.playhead];
+        this.buffer[this.playhead] = this.buffer[this.playhead] + inSample;
+      }
+
+      outL[i] = outSample;
+      if (outR !== outL) outR[i] = outSample;
+
+      this.playhead++;
+      if (this.playhead >= this.bufferLength) {
+        this.playhead = 0;
+        this.port.postMessage({ type: 'loop' });
+      }
+
+      // beat reporting
+      const beatIdx = Math.floor((this.playhead / this.bufferLength) * this.beatsPerLoop);
+      if (beatIdx !== this.lastBeat) {
+        this.lastBeat = beatIdx;
+        this.port.postMessage({ type: 'beat', beat: beatIdx, position: this.playhead / this.bufferLength });
+      }
+    }
+
+    return true;
+  }
+}
+registerProcessor('looper-processor', LooperProcessor);
+`;
+
+// ─── State ────────────────────────────────────────────────────
+const state = {
+  bpm: 100,
+  bars: 4,
+  beatsPerBar: 4,
+  metronomeInLoop: false,
+  layers: 0,
+  appState: 'idle',     // 'idle' | 'countin' | 'recording' | 'playing' | 'overdubbing'
+  undoStack: [],
+  redoStack: [],
+  countInBeat: 0,
+};
+
+// ─── Audio engine ────────────────────────────────────────────
+let ctx, micStream, micSource, workletNode, metronomeGain;
+let metronomeNextTime = 0;
+let metronomeBeatCount = 0;
+let metronomeTimerId = null;
+let countInResolve = null;
+
+async function initAudio() {
+  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+        channelCount: 1
+      },
+      video: false
+    });
+  } catch (err) {
+    throw new Error('Microphone access denied. Please grant permission and reload. (' + err.message + ')');
+  }
+
+  const blob = new Blob([workletSrc], { type: 'application/javascript' });
+  const url = URL.createObjectURL(blob);
+  await ctx.audioWorklet.addModule(url);
+
+  micSource = ctx.createMediaStreamSource(micStream);
+  workletNode = new AudioWorkletNode(ctx, 'looper-processor', {
+    numberOfInputs: 1,
+    numberOfOutputs: 1,
+    outputChannelCount: [2],
+    channelCount: 1,
+  });
+
+  micSource.connect(workletNode);
+  workletNode.connect(ctx.destination);
+
+  // metronome bus
+  metronomeGain = ctx.createGain();
+  metronomeGain.gain.value = 0.5;
+  metronomeGain.connect(ctx.destination);
+
+  workletNode.port.onmessage = (e) => {
+    const m = e.data;
+    if (m.type === 'beat') {
+      updateRing(m.position);
+      flashBeat(m.beat % (state.bars * state.beatsPerBar), m.beat % state.beatsPerBar === 0);
+      const bar = Math.floor(m.beat / state.beatsPerBar) + 1;
+      ui.barCounter.textContent = bar;
+    } else if (m.type === 'loop') {
+      onLoopWrap();
+    } else if (m.type === 'buffer') {
+      // used for export later if needed
+    }
+  };
+}
+
+// ─── Metronome (Web Audio scheduled clicks) ─────────────────
+function clickAt(time, accent) {
+  const osc = ctx.createOscillator();
+  const env = ctx.createGain();
+  osc.frequency.value = accent ? 1800 : 1100;
+  env.gain.setValueAtTime(0, time);
+  env.gain.linearRampToValueAtTime(accent ? 0.7 : 0.45, time + 0.001);
+  env.gain.exponentialRampToValueAtTime(0.0001, time + 0.06);
+  osc.connect(env).connect(metronomeGain);
+  osc.start(time);
+  osc.stop(time + 0.08);
+}
+
+function startMetronomeScheduler(startBeatIndex = 0) {
+  const beatDur = 60 / state.bpm;
+  metronomeNextTime = ctx.currentTime + 0.05;
+  metronomeBeatCount = startBeatIndex;
+  const scheduler = () => {
+    while (metronomeNextTime < ctx.currentTime + 0.2) {
+      const accent = metronomeBeatCount % state.beatsPerBar === 0;
+      clickAt(metronomeNextTime, accent);
+      metronomeNextTime += beatDur;
+      metronomeBeatCount++;
+    }
+  };
+  scheduler();
+  metronomeTimerId = setInterval(scheduler, 25);
+}
+
+function stopMetronomeScheduler() {
+  if (metronomeTimerId) { clearInterval(metronomeTimerId); metronomeTimerId = null; }
+}
+
+// ─── Count-in then start recording ───────────────────────────
+async function runCountIn() {
+  setStatus('countin', 'COUNT-IN');
+  state.appState = 'countin';
+  ui.mainSw.classList.add('armed');
+  const beatDur = 60 / state.bpm;
+  const startAt = ctx.currentTime + 0.1;
+
+  // play 1 bar of count-in clicks
+  for (let i = 0; i < state.beatsPerBar; i++) {
+    const t = startAt + i * beatDur;
+    clickAt(t, i === 0);
+    // schedule UI flash
+    const delay = (t - ctx.currentTime) * 1000;
+    setTimeout(() => {
+      flashCountBeat(i);
+      ui.barCounter.textContent = 0;
+    }, delay);
+  }
+
+  // schedule recording start exactly at end of count-in bar
+  const recordStartTime = startAt + state.beatsPerBar * beatDur;
+  const waitMs = (recordStartTime - ctx.currentTime) * 1000;
+  await new Promise(r => setTimeout(r, waitMs));
+
+  // begin recording
+  const sampleRate = ctx.sampleRate;
+  const totalBeats = state.bars * state.beatsPerBar;
+  const loopSamples = Math.round(totalBeats * beatDur * sampleRate);
+
+  workletNode.port.postMessage({
+    type: 'init',
+    length: loopSamples,
+    beats: totalBeats
+  });
+  workletNode.port.postMessage({ type: 'mode', mode: 'recording', resetPlayhead: true });
+
+  state.appState = 'recording';
+  setStatus('rec', 'RECORDING');
+  ui.mainSw.classList.remove('armed');
+  ui.mainSw.classList.add('rec');
+  ui.ringProgress.classList.add('rec');
+  ui.mainLabel.textContent = 'STOP REC';
+
+  // start in-loop metronome from beat 0 if enabled
+  if (state.metronomeInLoop) {
+    startMetronomeScheduler(0);
+  }
+}
+
+// ─── Loop wrap handler ───────────────────────────────────────
+function onLoopWrap() {
+  if (state.appState === 'recording') {
+    // first pass done → switch to playback
+    state.appState = 'playing';
+    state.layers = 1;
+    workletNode.port.postMessage({ type: 'mode', mode: 'playing' });
+    setStatus('play', 'PLAYING');
+    ui.mainSw.classList.remove('rec');
+    ui.mainSw.classList.add('play');
+    ui.ringProgress.classList.remove('rec');
+    ui.ringProgress.classList.add('play');
+    ui.mainLabel.textContent = 'OVERDUB';
+    ui.layerCount.textContent = state.layers;
+    ui.undoSw.disabled = false;
+    ui.stopBtn.disabled = false;
+    ui.clearBtn.disabled = false;
+  }
+  // overdubbing wraps automatically without state change
+}
+
+// ─── Snapshot for undo ───────────────────────────────────────
+function snapshotBuffer() {
+  return new Promise((resolve) => {
+    const handler = (e) => {
+      if (e.data.type === 'buffer') {
+        workletNode.port.removeEventListener('message', handler);
+        resolve(e.data.buffer);
+      }
+    };
+    // can't easily addEventListener on port — wrap manually
+    const orig = workletNode.port.onmessage;
+    workletNode.port.onmessage = (e) => {
+      if (e.data.type === 'buffer') {
+        workletNode.port.onmessage = orig;
+        resolve(e.data.buffer);
+      } else if (orig) orig(e);
+    };
+    workletNode.port.postMessage({ type: 'getBuffer' });
+  });
+}
+
+// ─── Overdub start (quantized to next loop start) ────────────
+let pendingOverdub = false;
+async function armOverdub() {
+  // snapshot current state for undo BEFORE the next loop wrap
+  const snap = await snapshotBuffer();
+  state.undoStack.push(snap);
+  state.redoStack = [];
+  ui.redoSw.disabled = true;
+
+  pendingOverdub = true;
+  setStatus('dub', 'DUB ARMED');
+  ui.mainSw.classList.add('armed');
+}
+
+function startOverdubNow() {
+  workletNode.port.postMessage({ type: 'mode', mode: 'overdubbing' });
+  state.appState = 'overdubbing';
+  state.layers++;
+  ui.layerCount.textContent = state.layers;
+  setStatus('dub', 'OVERDUB');
+  ui.mainSw.classList.remove('armed');
+  ui.mainSw.classList.remove('play');
+  ui.mainSw.classList.add('dub');
+  ui.ringProgress.classList.remove('play');
+  ui.ringProgress.classList.add('dub');
+  ui.mainLabel.textContent = 'END DUB';
+}
+
+function endOverdub() {
+  workletNode.port.postMessage({ type: 'mode', mode: 'playing' });
+  state.appState = 'playing';
+  setStatus('play', 'PLAYING');
+  ui.mainSw.classList.remove('dub');
+  ui.mainSw.classList.add('play');
+  ui.ringProgress.classList.remove('dub');
+  ui.ringProgress.classList.add('play');
+  ui.mainLabel.textContent = 'OVERDUB';
+}
+
+// hook into loop wrap to trigger pending overdub at downbeat
+const _origOnLoopWrap = onLoopWrap;
+function loopWrapWithOverdub() {
+  _origOnLoopWrap();
+  if (pendingOverdub && state.appState === 'playing') {
+    pendingOverdub = false;
+    startOverdubNow();
+  }
+}
+
+// patch the message handler after init
+function attachWorkletMessages() {
+  workletNode.port.onmessage = (e) => {
+    const m = e.data;
+    if (m.type === 'beat') {
+      updateRing(m.position);
+      const localBeat = m.beat % (state.bars * state.beatsPerBar);
+      flashBeat(localBeat, localBeat % state.beatsPerBar === 0);
+      const bar = Math.floor(localBeat / state.beatsPerBar) + 1;
+      ui.barCounter.textContent = bar;
+    } else if (m.type === 'loop') {
+      loopWrapWithOverdub();
+    } else if (m.type === 'buffer') {
+      // handled by snapshotBuffer wrapper
+    }
+  };
+}
+
+// ─── Stop & clear ────────────────────────────────────────────
+function stopLoop() {
+  workletNode.port.postMessage({ type: 'mode', mode: 'idle' });
+  stopMetronomeScheduler();
+  state.appState = 'idle';
+  pendingOverdub = false;
+  setStatus('idle', 'STOPPED');
+  ui.mainSw.classList.remove('rec','play','dub','armed');
+  ui.ringProgress.classList.remove('rec','play','dub');
+  ui.ringProgress.setAttribute('stroke-dashoffset', '578');
+  ui.mainLabel.textContent = 'RESUME';
+  clearBeats();
+}
+
+function clearLoop() {
+  workletNode.port.postMessage({ type: 'mode', mode: 'idle' });
+  stopMetronomeScheduler();
+  state.appState = 'idle';
+  state.layers = 0;
+  state.undoStack = [];
+  state.redoStack = [];
+  pendingOverdub = false;
+  ui.layerCount.textContent = '0';
+  ui.barCounter.textContent = '0';
+  ui.mainSw.classList.remove('rec','play','dub','armed');
+  ui.ringProgress.classList.remove('rec','play','dub');
+  ui.ringProgress.setAttribute('stroke-dashoffset', '578');
+  ui.mainLabel.textContent = 'START';
+  ui.undoSw.disabled = true;
+  ui.redoSw.disabled = true;
+  ui.stopBtn.disabled = true;
+  ui.clearBtn.disabled = true;
+  setStatus('idle', 'IDLE');
+  clearBeats();
+}
+
+// ─── Undo / Redo ─────────────────────────────────────────────
+async function doUndo() {
+  if (state.undoStack.length === 0) return;
+  const current = await snapshotBuffer();
+  state.redoStack.push(current);
+  const prev = state.undoStack.pop();
+  workletNode.port.postMessage({ type: 'replaceBuffer', buffer: prev });
+  state.layers = Math.max(1, state.layers - 1);
+  ui.layerCount.textContent = state.layers;
+  ui.redoSw.disabled = false;
+  if (state.undoStack.length === 0) ui.undoSw.disabled = true;
+}
+async function doRedo() {
+  if (state.redoStack.length === 0) return;
+  const current = await snapshotBuffer();
+  state.undoStack.push(current);
+  const next = state.redoStack.pop();
+  workletNode.port.postMessage({ type: 'replaceBuffer', buffer: next });
+  state.layers++;
+  ui.layerCount.textContent = state.layers;
+  ui.undoSw.disabled = false;
+  if (state.redoStack.length === 0) ui.redoSw.disabled = true;
+}
+
+// ─── UI bindings ─────────────────────────────────────────────
+const ui = {};
+function $(id) { return document.getElementById(id); }
+
+function setStatus(klass, text) {
+  ui.statusText.className = 'status-text ' + klass;
+  ui.statusText.textContent = text;
+}
+
+function updateRing(position) {
+  // circumference = 2*pi*92 ≈ 578
+  const offset = 578 * (1 - position);
+  ui.ringProgress.setAttribute('stroke-dashoffset', offset);
+}
+
+function buildBeatDots() {
+  ui.beatRow.innerHTML = '';
+  const total = state.bars * state.beatsPerBar;
+  // cap visible dots to avoid overflow on phones
+  const maxDots = Math.min(total, 16);
+  ui.beatRow.dataset.total = total;
+  ui.beatRow.dataset.shown = maxDots;
+  for (let i = 0; i < maxDots; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'beat' + (i % state.beatsPerBar === 0 ? ' downbeat-pos' : '');
+    ui.beatRow.appendChild(dot);
+  }
+}
+
+function flashBeat(beatIdx, isDownbeat) {
+  const total = parseInt(ui.beatRow.dataset.total, 10);
+  const shown = parseInt(ui.beatRow.dataset.shown, 10);
+  // map total beats → shown dots
+  const dotIdx = Math.floor((beatIdx / total) * shown);
+  const dots = ui.beatRow.children;
+  for (const d of dots) d.classList.remove('on','downbeat');
+  if (dots[dotIdx]) {
+    dots[dotIdx].classList.add('on');
+    if (isDownbeat) dots[dotIdx].classList.add('downbeat');
+  }
+}
+
+function flashCountBeat(beatIdx) {
+  const dots = ui.beatRow.children;
+  for (const d of dots) d.classList.remove('on','downbeat');
+  if (dots[beatIdx]) {
+    dots[beatIdx].classList.add('on');
+    if (beatIdx === 0) dots[beatIdx].classList.add('downbeat');
+  }
+}
+
+function clearBeats() {
+  for (const d of ui.beatRow.children) d.classList.remove('on','downbeat');
+}
+
+function refreshParams() {
+  ui.bpmVal.textContent = state.bpm;
+  ui.barsVal.textContent = state.bars;
+  ui.barTotal.textContent = state.bars;
+  buildBeatDots();
+}
+
+// ─── Init ────────────────────────────────────────────────────
+function cacheUI() {
+  ['statusText','barCounter','barTotal','ringProgress','layerCount','beatRow',
+   'bpmVal','barsVal','bpmDown','bpmUp','barsDown','barsUp','metSwitch',
+   'mainSw','mainLabel','undoSw','redoSw','stopBtn','clearBtn',
+   'startOverlay','startBtn','startError']
+    .forEach(id => ui[id] = $(id));
+}
+
+function wireUI() {
+  ui.bpmDown.onclick = () => { if (state.appState === 'idle') { state.bpm = Math.max(40, state.bpm - 1); refreshParams(); } };
+  ui.bpmUp.onclick   = () => { if (state.appState === 'idle') { state.bpm = Math.min(240, state.bpm + 1); refreshParams(); } };
+  ui.barsDown.onclick = () => { if (state.appState === 'idle') { state.bars = Math.max(1, state.bars - 1); refreshParams(); } };
+  ui.barsUp.onclick   = () => { if (state.appState === 'idle') { state.bars = Math.min(16, state.bars + 1); refreshParams(); } };
+
+  // long-press accelerate
+  [['bpmDown',-1,'bpm'],['bpmUp',1,'bpm'],['barsDown',-1,'bars'],['barsUp',1,'bars']].forEach(([id,dir,key]) => {
+    let interval, timeout;
+    const el = ui[id];
+    const fire = () => {
+      if (state.appState !== 'idle') return;
+      if (key === 'bpm') { state.bpm = Math.min(240, Math.max(40, state.bpm + dir)); }
+      else { state.bars = Math.min(16, Math.max(1, state.bars + dir)); }
+      refreshParams();
+    };
+    el.addEventListener('pointerdown', () => {
+      timeout = setTimeout(() => { interval = setInterval(fire, 60); }, 400);
+    });
+    const stop = () => { clearTimeout(timeout); clearInterval(interval); };
+    ['pointerup','pointerleave','pointercancel'].forEach(ev => el.addEventListener(ev, stop));
+  });
+
+  ui.metSwitch.onclick = () => {
+    state.metronomeInLoop = !state.metronomeInLoop;
+    ui.metSwitch.classList.toggle('on', state.metronomeInLoop);
+    if (state.metronomeInLoop && (state.appState === 'playing' || state.appState === 'overdubbing' || state.appState === 'recording')) {
+      // start metronome aligned with current playhead
+      startMetronomeScheduler(0);
+    } else if (!state.metronomeInLoop) {
+      stopMetronomeScheduler();
+    }
+  };
+
+  ui.mainSw.onclick = async () => {
+    if (state.appState === 'idle') {
+      // START → count-in → record
+      await runCountIn();
+    } else if (state.appState === 'playing') {
+      // arm overdub on next downbeat
+      await armOverdub();
+    } else if (state.appState === 'overdubbing') {
+      endOverdub();
+    } else if (state.appState === 'recording') {
+      // user wants to bail out of first take
+      clearLoop();
+    } else if (state.appState === 'countin') {
+      // cancel count-in
+      stopMetronomeScheduler();
+      state.appState = 'idle';
+      setStatus('idle', 'IDLE');
+      ui.mainSw.classList.remove('armed');
+    }
+  };
+
+  ui.undoSw.onclick = doUndo;
+  ui.redoSw.onclick = doRedo;
+  ui.stopBtn.onclick = stopLoop;
+  ui.clearBtn.onclick = clearLoop;
+
+  // keyboard
+  document.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    if (e.code === 'Space') { e.preventDefault(); ui.mainSw.click(); }
+    else if (e.code === 'KeyZ') { if (!ui.undoSw.disabled) doUndo(); }
+    else if (e.code === 'KeyY') { if (!ui.redoSw.disabled) doRedo(); }
+    else if (e.code === 'KeyS') { if (!ui.stopBtn.disabled) stopLoop(); }
+    else if (e.code === 'KeyC') { if (!ui.clearBtn.disabled) clearLoop(); }
+  });
+
+  ui.startBtn.onclick = async () => {
+    ui.startBtn.disabled = true;
+    ui.startBtn.textContent = 'INITIALIZING...';
+    ui.startError.textContent = '';
+    try {
+      await initAudio();
+      if (ctx.state === 'suspended') await ctx.resume();
+      attachWorkletMessages();
+      ui.startOverlay.classList.add('hidden');
+      setStatus('idle', 'IDLE');
+    } catch (err) {
+      ui.startBtn.disabled = false;
+      ui.startBtn.textContent = 'RETRY';
+      ui.startError.textContent = err.message;
+    }
+  };
+}
+
+// boot
+document.addEventListener('DOMContentLoaded', () => {
+  cacheUI();
+  refreshParams();
+  wireUI();
+});
+</script>
+</body>
+</html>
