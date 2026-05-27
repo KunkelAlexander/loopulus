@@ -1,24 +1,9 @@
 # Loopulus
 
 Vibecoding project for lack of good looper apps on Android that don't want my data. 
-
-A browser-based guitar looper pedal. Single HTML file, no build step, hostable on GitHub Pages.
-
-Designed for the common bedroom setup where a headphone amp's aux/line out feeds the phone and the phone's audio out returns to the amp — making the phone act as an external effects loop. Loopulus lives in that loop as a web app.
+A browser-based guitar looper pedal available [here](kunkelalexander.github.io/loopulus/). 
 
 ## Usage
-
-### Hardware setup
-
-```
-guitar → headphone amp → (aux out) → phone audio in
-                                        ↓
-                                   Loopulus in browser
-                                        ↓
-         headphones ← amp ← (aux in) ← phone audio out
-```
-
-Use **wired headphones** through the amp. Bluetooth adds 100–300 ms of latency and will make the looper unusable.
 
 ### Playing a loop
 
@@ -44,14 +29,6 @@ Useful if you pair a Bluetooth foot pedal that sends keystrokes:
 | Y     | Redo         |
 | S     | Stop         |
 | C     | Clear        |
-
-## Deploying to GitHub Pages
-
-1. Create a public repo, add this file as `index.html` at the repo root.
-2. **Settings → Pages → Source:** `main` branch, `/` (root).
-3. Visit `https://<your-username>.github.io/<repo-name>/` on your phone.
-
-GitHub Pages serves over HTTPS, which is required for `getUserMedia` to work on mobile.
 
 ## Design choices
 
@@ -103,16 +80,6 @@ A single HTML file with inline CSS and JS. Two fonts pulled from Google Fonts. N
 - **Old layers can get buried** as you stack overdubs, since each new layer adds energy to the same buffer with no per-layer mixing. A decay/feedback control would help (planned for v1.1).
 - **Tempo is fixed once recording starts.** Changing BPM mid-loop would require resampling.
 - **Background tabs may suspend audio** on mobile browsers. Keep the tab in the foreground and the screen awake.
-
-## Browser support
-
-Tested target: **Chrome on Android**. Should work on desktop Chrome, Firefox, and recent Safari, but iOS Safari is stricter about audio context lifecycle and may need additional handling.
-
-## Tech stack
-
-- Web Audio API (`AudioContext`, `AudioWorkletNode`, `MediaStreamSource`)
-- `getUserMedia` for guitar input
-- Vanilla HTML/CSS/JS — no framework, no build tooling
 
 ## License
 

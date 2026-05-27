@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0a0a" />
-<title>Loopulus — Guitar Looper</title>
+<title>LOOP/01 — Guitar Looper</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Major+Mono+Display&display=swap" rel="stylesheet">
 <style>
   /* ─────────────────────────────────────────────────────────────
-     Loopulus — pedal-inspired dark UI
+     LOOP/01 — pedal-inspired dark UI
      ───────────────────────────────────────────────────────────── */
   :root {
     --bg: #0a0a0a;
@@ -355,7 +355,7 @@
   /* ── secondary controls ────────────────────────────────── */
   .secondary {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
     margin-top: 12px;
   }
@@ -425,6 +425,69 @@
     line-height: 1.5;
   }
 
+  .start-step { display: flex; flex-direction: column; align-items: center; }
+  .start-step.hidden { display: none; }
+
+  .device-row {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 0 16px;
+    text-align: left;
+  }
+  .device-label {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .device-select {
+    width: 100%;
+    background: #050505;
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink-dim) 50%),
+                      linear-gradient(135deg, var(--ink-dim) 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 12px) center;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 30px;
+  }
+  .device-select:disabled { opacity: 0.4; }
+  .device-note {
+    margin-top: 6px;
+    font-size: 9px;
+    color: var(--ink-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .device-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--ink-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    padding: 12px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .btn-secondary:active { background: #141414; color: var(--ink); }
+
   /* ── footer notes ──────────────────────────────────────── */
   .footer {
     margin-top: 16px;
@@ -445,14 +508,39 @@
 </head>
 <body>
 
-<!-- ── start overlay (required to unlock audio on mobile) ── -->
+<!-- ── start overlay step 1: power on (required to unlock audio on mobile) ── -->
 <div class="start-overlay" id="startOverlay">
-  <h1>LOOP<span class="slash">/</span>01</h1>
-  <p>
-    Connect your guitar amp's output to your phone, plug headphones into the amp's monitor, and tap below to grant microphone access. Use headphones to prevent feedback.
-  </p>
-  <button class="start-btn" id="startBtn">POWER ON</button>
-  <div class="start-error" id="startError"></div>
+  <div class="start-step" id="stepPower">
+    <h1>LOOP<span class="slash">/</span>01</h1>
+    <p>
+      Connect your guitar amp's output to your phone, plug headphones into the amp's monitor, and tap below to grant microphone access. Use headphones to prevent feedback.
+    </p>
+    <button class="start-btn" id="startBtn">POWER ON</button>
+    <div class="start-error" id="startError"></div>
+  </div>
+
+  <!-- step 2: device picker -->
+  <div class="start-step hidden" id="stepDevices">
+    <h1>I<span class="slash">/</span>O</h1>
+    <p>Choose which audio interface to use.</p>
+
+    <div class="device-row">
+      <label class="device-label">INPUT</label>
+      <select class="device-select" id="inputSelect"></select>
+    </div>
+
+    <div class="device-row">
+      <label class="device-label">OUTPUT</label>
+      <select class="device-select" id="outputSelect"></select>
+      <div class="device-note" id="outputNote"></div>
+    </div>
+
+    <div class="device-actions">
+      <button class="btn-secondary" id="rescanBtn">RESCAN</button>
+      <button class="start-btn" id="confirmDevicesBtn">CONFIRM</button>
+    </div>
+    <div class="start-error" id="deviceError"></div>
+  </div>
 </div>
 
 <!-- ── main pedal ── -->
@@ -532,6 +620,7 @@
 
   <!-- secondary -->
   <div class="secondary">
+    <button class="btn" id="ioBtn">I/O</button>
     <button class="btn" id="stopBtn" disabled>STOP</button>
     <button class="btn danger" id="clearBtn" disabled>CLEAR</button>
   </div>
@@ -543,7 +632,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   Loopulus — Guitar Looper
+   LOOP/01 — Guitar Looper
    Single-loop, unlimited overdubs, count-in, quantized to bar.
    AudioWorklet handles the per-sample mixing on the audio thread.
    ═══════════════════════════════════════════════════════════════ */
@@ -651,62 +740,121 @@ const state = {
 };
 
 // ─── Audio engine ────────────────────────────────────────────
-let ctx, micStream, micSource, workletNode, metronomeGain;
+let ctx, micStream, micSource, workletNode, metronomeGain, outputGain;
 let metronomeNextTime = 0;
 let metronomeBeatCount = 0;
 let metronomeTimerId = null;
 let countInResolve = null;
+let chosenInputId = null;
+let chosenOutputId = null;
+let workletReady = false;
 
-async function initAudio() {
-  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
-
+// Stage 1: prompt for mic permission so device labels become visible.
+// We immediately stop the resulting stream — we only wanted permission.
+async function requestMicPermission() {
+  let probe;
   try {
-    micStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl: false,
-        channelCount: 1
-      },
-      video: false
-    });
+    probe = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
   } catch (err) {
-    throw new Error('Microphone access denied. Please grant permission and reload. (' + err.message + ')');
+    throw new Error('Microphone access denied. Please grant permission and try again. (' + err.message + ')');
+  }
+  probe.getTracks().forEach(t => t.stop());
+}
+
+async function listDevices() {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return {
+    inputs:  devices.filter(d => d.kind === 'audioinput'),
+    outputs: devices.filter(d => d.kind === 'audiooutput'),
+  };
+}
+
+// Stage 2: build (or rebuild) the audio graph using chosen devices.
+async function connectAudio(inputDeviceId, outputDeviceId) {
+  // tear down any previous graph
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  if (micSource) { try { micSource.disconnect(); } catch(_){} micSource = null; }
+
+  // create context once (re-creating it on every device change has cost
+  // and would also invalidate the audio worklet registration)
+  if (!ctx) {
+    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+  }
+  if (ctx.state === 'suspended') await ctx.resume();
+
+  // load the worklet module once
+  if (!workletReady) {
+    const blob = new Blob([workletSrc], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    await ctx.audioWorklet.addModule(url);
+    workletReady = true;
   }
 
-  const blob = new Blob([workletSrc], { type: 'application/javascript' });
-  const url = URL.createObjectURL(blob);
-  await ctx.audioWorklet.addModule(url);
+  // open mic on the chosen input device
+  const audioConstraints = {
+    echoCancellation: false,
+    noiseSuppression: false,
+    autoGainControl: false,
+    channelCount: 1,
+  };
+  if (inputDeviceId) audioConstraints.deviceId = { exact: inputDeviceId };
+
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
+  } catch (err) {
+    // fall back to default if exact match failed (device may have been unplugged)
+    if (inputDeviceId) {
+      delete audioConstraints.deviceId;
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
+    } else {
+      throw err;
+    }
+  }
+  chosenInputId = inputDeviceId || null;
 
   micSource = ctx.createMediaStreamSource(micStream);
-  workletNode = new AudioWorkletNode(ctx, 'looper-processor', {
-    numberOfInputs: 1,
-    numberOfOutputs: 1,
-    outputChannelCount: [2],
-    channelCount: 1,
-  });
 
+  // create the worklet node once, reuse on later device swaps
+  if (!workletNode) {
+    workletNode = new AudioWorkletNode(ctx, 'looper-processor', {
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      outputChannelCount: [2],
+      channelCount: 1,
+    });
+  }
   micSource.connect(workletNode);
-  workletNode.connect(ctx.destination);
 
-  // metronome bus
-  metronomeGain = ctx.createGain();
-  metronomeGain.gain.value = 0.5;
-  metronomeGain.connect(ctx.destination);
+  // output bus: worklet + metronome → outputGain → destination
+  if (!outputGain) {
+    outputGain = ctx.createGain();
+    outputGain.gain.value = 1.0;
+    outputGain.connect(ctx.destination);
+    workletNode.connect(outputGain);
+  }
+  if (!metronomeGain) {
+    metronomeGain = ctx.createGain();
+    metronomeGain.gain.value = 0.5;
+    metronomeGain.connect(outputGain);
+  }
 
-  workletNode.port.onmessage = (e) => {
-    const m = e.data;
-    if (m.type === 'beat') {
-      updateRing(m.position);
-      flashBeat(m.beat % (state.bars * state.beatsPerBar), m.beat % state.beatsPerBar === 0);
-      const bar = Math.floor(m.beat / state.beatsPerBar) + 1;
-      ui.barCounter.textContent = bar;
-    } else if (m.type === 'loop') {
-      onLoopWrap();
-    } else if (m.type === 'buffer') {
-      // used for export later if needed
-    }
-  };
+  // route output to selected sink if supported
+  await applyOutputDevice(outputDeviceId);
+}
+
+async function applyOutputDevice(outputDeviceId) {
+  chosenOutputId = outputDeviceId || null;
+  if (!outputDeviceId) return;
+  // setSinkId on AudioContext: supported in recent Chrome
+  if (ctx && typeof ctx.setSinkId === 'function') {
+    try { await ctx.setSinkId(outputDeviceId); } catch (err) { console.warn('setSinkId failed', err); }
+  }
+}
+
+function outputSelectionSupported() {
+  return !!(ctx && typeof ctx.setSinkId === 'function')
+      // probe before ctx exists: check on a temp context-like — fall back to true on Chrome
+      || (typeof AudioContext !== 'undefined' && 'setSinkId' in AudioContext.prototype);
 }
 
 // ─── Metronome (Web Audio scheduled clicks) ─────────────────
@@ -1027,8 +1175,10 @@ function refreshParams() {
 function cacheUI() {
   ['statusText','barCounter','barTotal','ringProgress','layerCount','beatRow',
    'bpmVal','barsVal','bpmDown','bpmUp','barsDown','barsUp','metSwitch',
-   'mainSw','mainLabel','undoSw','redoSw','stopBtn','clearBtn',
-   'startOverlay','startBtn','startError']
+   'mainSw','mainLabel','undoSw','redoSw','stopBtn','clearBtn','ioBtn',
+   'startOverlay','startBtn','startError',
+   'stepPower','stepDevices','inputSelect','outputSelect','outputNote',
+   'rescanBtn','confirmDevicesBtn','deviceError']
     .forEach(id => ui[id] = $(id));
 }
 
@@ -1102,22 +1252,118 @@ function wireUI() {
     else if (e.code === 'KeyC') { if (!ui.clearBtn.disabled) clearLoop(); }
   });
 
+  // ─── Device picker flow ────────────────────────────────
+  async function populateDevicePickers() {
+    const { inputs, outputs } = await listDevices();
+
+    // INPUT
+    ui.inputSelect.innerHTML = '';
+    if (inputs.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = 'No input devices found';
+      opt.disabled = true;
+      ui.inputSelect.appendChild(opt);
+    } else {
+      inputs.forEach((d, i) => {
+        const opt = document.createElement('option');
+        opt.value = d.deviceId;
+        opt.textContent = d.label || `Input ${i + 1}`;
+        if (d.deviceId === chosenInputId) opt.selected = true;
+        ui.inputSelect.appendChild(opt);
+      });
+    }
+
+    // OUTPUT
+    const outSupported = outputSelectionSupported();
+    ui.outputSelect.innerHTML = '';
+    if (!outSupported) {
+      const opt = document.createElement('option');
+      opt.textContent = 'System default (browser does not support selection)';
+      opt.disabled = true;
+      opt.selected = true;
+      ui.outputSelect.appendChild(opt);
+      ui.outputSelect.disabled = true;
+      ui.outputNote.textContent = 'Routed through the OS default audio output';
+    } else if (outputs.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = 'No output devices found';
+      opt.disabled = true;
+      ui.outputSelect.appendChild(opt);
+      ui.outputSelect.disabled = true;
+      ui.outputNote.textContent = '';
+    } else {
+      ui.outputSelect.disabled = false;
+      outputs.forEach((d, i) => {
+        const opt = document.createElement('option');
+        opt.value = d.deviceId;
+        opt.textContent = d.label || `Output ${i + 1}`;
+        if (d.deviceId === chosenOutputId) opt.selected = true;
+        ui.outputSelect.appendChild(opt);
+      });
+      ui.outputNote.textContent = '';
+    }
+  }
+
+  function showStep(name) {
+    ui.stepPower.classList.toggle('hidden', name !== 'power');
+    ui.stepDevices.classList.toggle('hidden', name !== 'devices');
+    if (name) ui.startOverlay.classList.remove('hidden');
+  }
+
   ui.startBtn.onclick = async () => {
     ui.startBtn.disabled = true;
     ui.startBtn.textContent = 'INITIALIZING...';
     ui.startError.textContent = '';
     try {
-      await initAudio();
-      if (ctx.state === 'suspended') await ctx.resume();
-      attachWorkletMessages();
-      ui.startOverlay.classList.add('hidden');
-      setStatus('idle', 'IDLE');
+      await requestMicPermission();
+      await populateDevicePickers();
+      showStep('devices');
     } catch (err) {
       ui.startBtn.disabled = false;
       ui.startBtn.textContent = 'RETRY';
       ui.startError.textContent = err.message;
     }
   };
+
+  ui.rescanBtn.onclick = async () => {
+    ui.deviceError.textContent = '';
+    try { await populateDevicePickers(); }
+    catch (err) { ui.deviceError.textContent = err.message; }
+  };
+
+  ui.confirmDevicesBtn.onclick = async () => {
+    ui.confirmDevicesBtn.disabled = true;
+    ui.confirmDevicesBtn.textContent = 'CONNECTING...';
+    ui.deviceError.textContent = '';
+    try {
+      const inId  = ui.inputSelect.value && !ui.inputSelect.disabled ? ui.inputSelect.value : null;
+      const outId = ui.outputSelect.value && !ui.outputSelect.disabled ? ui.outputSelect.value : null;
+      await connectAudio(inId, outId);
+      attachWorkletMessages();
+      ui.startOverlay.classList.add('hidden');
+      setStatus('idle', 'IDLE');
+    } catch (err) {
+      ui.deviceError.textContent = err.message;
+    } finally {
+      ui.confirmDevicesBtn.disabled = false;
+      ui.confirmDevicesBtn.textContent = 'CONFIRM';
+    }
+  };
+
+  // I/O button on main UI — re-opens the picker mid-session.
+  // Stops any active loop first so the audio graph rebuild doesn't glitch.
+  ui.ioBtn.onclick = async () => {
+    if (state.appState !== 'idle') stopLoop();
+    await populateDevicePickers();
+    showStep('devices');
+  };
+
+  // hot-plug: refresh picker if it's currently open
+  navigator.mediaDevices.addEventListener('devicechange', async () => {
+    if (!ui.stepDevices.classList.contains('hidden')) {
+      try { await populateDevicePickers(); } catch (_) {}
+    }
+  });
 }
 
 // boot
