@@ -427,6 +427,7 @@ class CaptureProcessor extends AudioWorkletProcessor {
     this.peakIn = 0;
     this.framesSinceReport = 0;
     this.reportInterval = 4096;     // ~85ms — relaxed for stability
+    this._levelMsg = { type: 'level', peak: 0 };  // pre-allocated, no GC in process()
 
     this.port.onmessage = (e) => {
       const m = e.data;
@@ -458,29 +459,20 @@ class CaptureProcessor extends AudioWorkletProcessor {
   process(inputs, outputs) {
     const input = inputs[0];
     const inCh = (input && input[0]) ? input[0] : null;
-    const out = outputs[0];
-
-    // worklet produces silence — playback is handled by AudioBufferSourceNode elsewhere
-    if (out && out[0]) {
-      const outL = out[0];
-      const outR = out[1] || out[0];
-      for (let i = 0; i < outL.length; i++) {
-        outL[i] = 0;
-        if (outR !== outL) outR[i] = 0;
-      }
-    }
+    // Output is already zero-initialised by the browser — no need to clear it.
 
     if (!inCh) return true;
     const frames = inCh.length;
 
-    // input level metering
+    // input level metering — reuse pre-allocated message object, no GC
     for (let i = 0; i < frames; i++) {
       const a = inCh[i] < 0 ? -inCh[i] : inCh[i];
       if (a > this.peakIn) this.peakIn = a;
     }
     this.framesSinceReport += frames;
     if (this.framesSinceReport >= this.reportInterval) {
-      this.port.postMessage({ type: 'level', peak: this.peakIn });
+      this._levelMsg.peak = this.peakIn;
+      this.port.postMessage(this._levelMsg);
       this.peakIn *= 0.7;
       this.framesSinceReport = 0;
     }
@@ -489,7 +481,7 @@ class CaptureProcessor extends AudioWorkletProcessor {
     if ((this.mode === 'record' || this.mode === 'dub') && this.buffer) {
       const remain = this.bufferLength - this.writeHead;
       const n = Math.min(remain, frames);
-      for (let i = 0; i < n; i++) this.buffer[this.writeHead + i] = inCh[i];
+      this.buffer.set(n < frames ? inCh.subarray(0, n) : inCh, this.writeHead);
       this.writeHead += n;
       if (this.writeHead >= this.bufferLength) {
         // finished — auto-flush
@@ -563,10 +555,9 @@ async function initAudio() {
   const settings = track ? track.getSettings() : {};
   const nativeSampleRate = settings.sampleRate || undefined;
 
-  // 'interactive' requests smaller, more frequent buffers which tends to give
-  // cleaner USB audio input on Android; 'playback' optimises output, not input.
-  // sampleRate matches the interface so the browser skips resampling entirely.
-  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive', sampleRate: nativeSampleRate });
+  // Android's AudioFlinger mixer always runs at 48kHz regardless of interface rate,
+  // so force 48000 to avoid a double-resample (interface→native→48k).
+  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive', sampleRate: 48000 });
   console.log('[Loopulus] baseLatency:', ctx.baseLatency, 'outputLatency:', ctx.outputLatency, 'sampleRate:', ctx.sampleRate);
   console.log('[Loopulus] Track label:', track ? track.label : '(none)');
   console.log('[Loopulus] Track settings:', settings);
